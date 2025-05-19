@@ -1,0 +1,541 @@
+/* Careers Page Styles - Droll Agents */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ======== Careers Hero Section ======== */
+.careers-hero {
+  position: relative;
+  background: linear-gradient(145deg, #f8fbff, #ffffff);
+  overflow: hidden;
+  padding: 5rem 0 3rem;
+}
+
+.careers-shapes {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.careers-shape {
+  position: absolute;
+  opacity: 0.5;
+  filter: blur(60px);
+  border-radius: 50%;
+}
+
+.careers-shape-1 {
+  width: 400px;
+  height: 400px;
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.08), rgba(0, 195, 255, 0.05));
+  top: -50px;
+  right: 5%;
+  animation: float 20s infinite alternate ease-in-out;
+}
+
+.careers-shape-2 {
+  width: 300px;
+  height: 300px;
+  background: linear-gradient(135deg, rgba(0, 195, 255, 0.06), rgba(0, 102, 204, 0.04));
+  bottom: 10%;
+  left: 5%;
+  animation: float 15s infinite alternate-reverse ease-in-out;
+}
+
+.careers-shape-3 {
+  width: 250px;
+  height: 250px;
+  background: linear-gradient(135deg, rgba(0, 102, 204, 0.05), rgba(0, 195, 255, 0.03));
+  top: 30%;
+  left: 20%;
+  animation: float 18s infinite alternate ease-in-out;
+}
+
+@keyframes float {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -20px) scale(1.05);
+  }
+  100% {
+    transform: translate(-15px, 15px) scale(1);
+  }
+}
+
+.careers-hero-content {
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: center;
+  z-index: 10;
+  animation: fadeIn 1s ease-out 0.2s both;
+}
+
+.careers-title {
+  font-size: 4rem;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  color: #1a2b3c;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  position: relative;
+}
+
+.careers-title::after {
+  content: '';
+  display: block;
+  width: 100px;
+  height: 4px;
+  background: var(--gradient-primary);
+  border-radius: 2px;
+  margin: 1.5rem auto 0;
+}
+
+.careers-subtitle {
+  font-size: 1.3rem;
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  color: var(--text-light);
+  line-height: 1.7;
+}
+
+/* ======== Careers Section ======== */
+.careers-section {
+  width: 100%;
+  position: relative;
+}
+
+/* ======== Benefits Section ======== */
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 2rem;
+  margin: 3rem 0;
+}
+
+.benefit-card {
+  background-color: var(--bg-color);
+  border-radius: var(--border-radius);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  text-align: center;
+  border: 1px solid var(--border-color);
+  height: 100%;
+}
+
+.benefit-card:hover {
+  transform: translateY(-6px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0, 102, 204, 0.2);
+}
+
+.benefit-icon {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  transition: var(--transition);
+  background: rgba(0, 102, 204, 0.07);
+}
+
+.benefit-card:hover .benefit-icon {
+  background: var(--gradient-primary);
+  color: white;
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 102, 204, 0.25);
+}
+
+.benefit-card h3 {
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
+  transition: var(--transition);
+}
+
+.benefit-card:hover h3 {
+  color: var(--primary-color);
+}
+
+.benefit-card p {
+  color: var(--text-light);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ======== Positions Section ======== */
+.positions-container {
+  width: 100%;
+  margin: 3rem 0 1rem;
+}
+
+.positions-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-bottom: 2.5rem;
+  justify-content: center;
+}
+
+.filter-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  padding: 0.7rem 1.2rem;
+  border-radius: 30px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn:hover {
+  background: rgba(0, 102, 204, 0.05);
+  color: var(--primary-color);
+  border-color: rgba(0, 102, 204, 0.2);
+}
+
+.filter-btn.active {
+  background: rgba(0, 102, 204, 0.1);
+  color: var(--primary-color);
+  border-color: rgba(0, 102, 204, 0.25);
+  font-weight: 600;
+}
+
+.positions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  width: 100%;
+}
+
+.position-card {
+  background-color: var(--bg-color);
+  border-radius: var(--border-radius);
+  padding: 2rem;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.position-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  border-color: rgba(0, 102, 204, 0.2);
+}
+
+.position-content {
+  flex: 1;
+  margin-bottom: 1.5rem;
+}
+
+.position-content h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+  color: var(--secondary-color);
+}
+
+.position-tag {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 102, 204, 0.08);
+  color: var(--primary-color);
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  margin-right: 0.8rem;
+}
+
+.position-location {
+  display: inline-block;
+  padding: 0.3rem 0.8rem;
+  background: rgba(0, 195, 255, 0.08);
+  color: #00a3ff;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.position-content p {
+  margin: 1rem 0;
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.position-action {
+  margin-top: auto;
+}
+
+/* Fix for Apply Now button hover text issue */
+.position-action .primary-button {
+  position: relative;
+  overflow: hidden;
+  color: white;
+  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  transition: all 0.3s ease;
+  z-index: 1;
+}
+
+.position-action .primary-button span {
+  color: white;
+  position: relative;
+  z-index: 3;
+}
+
+.position-action .primary-button:hover {
+  color: white !important; /* Force white text color on hover */
+  transform: translateY(-3px);
+  box-shadow: 0 8px 15px rgba(0, 102, 204, 0.2);
+}
+
+/* Ensure button content stays visible */
+.position-action .primary-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--accent-color), var(--primary-color));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: -1; /* Place the gradient behind the text */
+}
+
+.position-action .primary-button:hover::before {
+  opacity: 1;
+}
+
+.no-jobs-message {
+  background-color: rgba(0, 102, 204, 0.04);
+  border-radius: var(--border-radius);
+  padding: 3rem;
+  text-align: center;
+  width: 100%;
+  grid-column: 1 / -1;
+}
+
+.no-jobs-message h3 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+}
+
+.no-jobs-message p {
+  max-width: 600px;
+  margin: 0 auto 1.5rem;
+  color: var(--text-light);
+}
+
+.cta-link {
+  color: var(--primary-color);
+  font-weight: 500;
+  font-size: 1.05rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.cta-link:hover {
+  color: var(--accent-color);
+  transform: translateX(3px);
+}
+
+/* ======== Department Info Section ======== */
+.department-info {
+  margin: 4rem 0;
+}
+
+.department-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: center;
+  margin-bottom: 5rem;
+}
+
+.department-item:nth-child(even) {
+  direction: rtl;
+}
+
+.department-item:last-child {
+  margin-bottom: 0;
+}
+
+.department-item:nth-child(even) .department-content,
+.department-item:nth-child(even) .department-image {
+  direction: ltr;
+}
+
+.department-content {
+  text-align: left;
+}
+
+.department-title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: var(--secondary-color);
+  font-weight: 700;
+  text-align: left;
+}
+
+.department-title::after {
+  content: '';
+  display: block;
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-primary);
+  margin: 1rem 0;
+  border-radius: 2px;
+}
+
+.department-description {
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  color: var(--text-light);
+}
+
+.department-image img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-md);
+}
+
+/* ======== Life at Company Section ======== */
+.life-section {
+  text-align: center;
+  margin: 3rem 0;
+}
+
+.life-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 3rem;
+}
+
+.life-card {
+  overflow: hidden;
+  border-radius: var(--border-radius);
+  position: relative;
+  height: 250px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.life-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.life-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.life-card:hover .life-image {
+  transform: scale(1.05);
+}
+
+.life-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.9);
+  text-align: center;
+  font-weight: 600;
+  color: var(--secondary-color);
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.life-card:hover .life-caption {
+  transform: translateY(0);
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .careers-title {
+    font-size: 3.2rem;
+  }
+  
+  .department-item {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+  
+  .department-item:nth-child(even) {
+    direction: ltr;
+  }
+}
+
+@media (max-width: 768px) {
+  .careers-title {
+    font-size: 2.8rem;
+  }
+  
+  .careers-subtitle {
+    font-size: 1.1rem;
+  }
+  
+  .positions-filters {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    max-width: 300px;
+    margin: 0 auto 2rem;
+  }
+  
+  .filter-btn {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .positions-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .careers-title {
+    font-size: 2.3rem;
+  }
+  
+  .careers-subtitle {
+    font-size: 1rem;
+  }
+  
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .benefit-icon {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .position-card {
+    padding: 1.5rem;
+  }
+  
+  .life-grid {
+    grid-template-columns: 1fr;
+  }
+}
