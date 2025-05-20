@@ -88,4 +88,26 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 300);
     }
   }
+  
+  // Add animation class to TOC when it becomes sticky
+  function handleTocStickyState() {
+    const tocElement = document.querySelector('.privacy-toc');
+    const heroSection = document.querySelector('.privacy-hero');
+    
+    if (tocElement && heroSection) {
+      const heroBottom = heroSection.getBoundingClientRect().bottom;
+      
+      // Check if we've scrolled past the hero section
+      if (heroBottom <= 0) {
+        tocElement.classList.add('toc-sticky');
+      } else {
+        tocElement.classList.remove('toc-sticky');
+      }
+    }
+  }
+  
+  // Run TOC sticky state check on scroll
+  window.addEventListener('scroll', handleTocStickyState);
+  // Initial check
+  handleTocStickyState();
 });

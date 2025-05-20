@@ -1,24 +1,28 @@
-/* Modern Professional Navbar Styling - Light Theme */
+/* Modern Floating Navbar Styling - Premium Look */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --navbar-height: 72px;
-  --navbar-background: rgba(255, 255, 255, 0.95);
-  --navbar-background-dark: rgba(255, 255, 255, 0.95); /* Changed to light */
-  --navbar-background-scrolled: rgba(255, 255, 255, 0.98);
-  --navbar-background-dark-scrolled: rgba(255, 255, 255, 0.98); /* Changed to light */
-  --navbar-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-  --navbar-shadow-dark: 0 4px 15px rgba(0, 0, 0, 0.06); /* Softer shadow for light theme */
-  --navbar-border: rgba(0, 0, 0, 0.05);
-  --navbar-border-dark: rgba(0, 102, 204, 0.1); /* Light blue tinted border */
+  --navbar-height: 70px;
+  --navbar-margin-top: 20px; /* Space from top for floating effect */
+  --navbar-width: 94%; /* Width constraint for floating effect */
+  --navbar-max-width: 1500px;
+  --navbar-background: rgba(255, 255, 255, 0.75); /* More translucent background */
+  --navbar-background-dark: rgba(255, 255, 255, 0.75);
+  --navbar-background-scrolled: rgba(255, 255, 255, 0.9); /* More translucent when scrolled */
+  --navbar-background-dark-scrolled: rgba(255, 255, 255, 0.9);
+  --navbar-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+  --navbar-shadow-dark: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --navbar-border: rgba(0, 102, 204, 0.15); /* Light blue border color */
+  --navbar-border-dark: rgba(0, 102, 204, 0.2);
   --navbar-text: #1a2b3c;
-  --navbar-text-dark: #1a2b3c; /* Changed to dark text on light background */
+  --navbar-text-dark: #1a2b3c;
   --primary-color: #0066cc;
   --primary-color-dark: #0066cc;
   --accent-gradient: linear-gradient(135deg, #0066cc, #00a3ff);
+  --navbar-border-radius: 16px;
 }
 
-/* Fixed container for navbar */
+/* Fixed container for floating navbar */
 #navbar-container {
   position: fixed;
   top: 0;
@@ -27,23 +31,30 @@
   z-index: 1000;
   box-sizing: border-box;
   max-width: 100vw; /* Prevent overflow */
+  display: flex;
+  justify-content: center;
+  padding-top: var(--navbar-margin-top);
+  transition: padding-top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modern-navbar {
   position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
+  top: var(--navbar-margin-top);
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  opacity: 0;
+  width: var(--navbar-width);
+  max-width: var(--navbar-max-width);
   height: var(--navbar-height);
   z-index: 1000;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   background: var(--navbar-background);
   box-shadow: var(--navbar-shadow);
-  border-bottom: 1px solid var(--navbar-border);
+  border-radius: var(--navbar-border-radius);
+  border: 1px solid var(--navbar-border); /* Updated border with variable */
   box-sizing: border-box;
 }
 
@@ -51,16 +62,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 2rem;
   height: 100%;
 }
 
 .modern-navbar.scrolled {
-  height: 64px;
+  top: 10px;
+  height: 60px;
   background: var(--navbar-background-scrolled);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  border-radius: calc(var(--navbar-border-radius) + 2px);
+  border: 1.5px solid var(--navbar-border); /* Slightly more visible border when scrolled */
+}
+
+#navbar-container.scrolled {
+  padding-top: 10px;
 }
 
 /* Navbar Sections */
@@ -130,12 +148,12 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Navigation Links */
+/* Navigation Links - Modern Styling */
 .nav-links {
   display: flex;
   align-items: center;
   height: 100%;
-  gap: 0.8rem;
+  gap: 0.6rem;
   margin: 0;
   padding: 0;
 }
@@ -146,33 +164,60 @@
   text-decoration: none;
   font-weight: 500;
   font-size: 0.95rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   gap: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
   white-space: nowrap; /* Prevent wrapping */
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.nav-link::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 102, 204, 0.08);
+  border-radius: 10px;
+  opacity: 0;
+  transform: translateY(5px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: -1;
 }
 
 .nav-link:hover {
   color: var(--primary-color);
-  background: rgba(0, 102, 204, 0.08);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.nav-link:hover::before {
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* Enhanced specificity for active class to ensure it's not overridden */
 .nav-link.active,
 .nav-links .nav-link.active,
 .nav-middle .nav-link.active {
-  color: var(--primary-color) !important;
+  color: white !important;
   font-weight: 600;
-  background: rgba(0, 102, 204, 0.12);
+}
+
+.nav-link.active::before {
+  background: var(--accent-gradient);
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 /* Force active tab to maintain its background color */
-.nav-link.active:hover {
-  background: rgba(0, 102, 204, 0.12);
+.nav-link.active:hover::before {
+  background: var(--accent-gradient);
 }
 
 /* Authentication Buttons */
@@ -211,77 +256,120 @@
   box-shadow: 0 6px 15px rgba(0, 102, 204, 0.3);
 }
 
-/* Contact Us Button Styling */
+/* Contact Us Button Styling - Modern & Premium */
 .contact-button {
   color: white;
-  background: var(--primary-color);
-  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.15);
-  border-radius: 8px;
-  padding: 0.6rem 1.2rem;
+  background: var(--accent-gradient);
+  box-shadow: 0 6px 15px rgba(0, 102, 204, 0.2);
+  border-radius: 12px;
+  padding: 0.65rem 1.4rem;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.contact-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0));
+  opacity: 0;
+  transition: opacity 0.4s ease;
 }
 
 .contact-button:hover {
-  background: #0077e6; /* Slightly brighter blue */
-  transform: translateY(-2px);
-  box-shadow: 0 6px 15px rgba(0, 102, 204, 0.25);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 10px 25px rgba(0, 102, 204, 0.35);
 }
 
-/* Mobile Menu Toggle Button */
+.contact-button:hover::after {
+  opacity: 1;
+}
+
+/* Ensure contact button text stays white on hover */
+.contact-button:hover,
+.contact-button:hover span,
+.nav-right .contact-button:hover span,
+.nav-button.contact-button:hover {
+  color: white !important;
+}
+
+/* Mobile Menu Toggle Button - Modern Animated */
 .menu-toggle {
   display: none;
   flex-direction: column;
   justify-content: space-between;
-  height: 21px;
-  width: 28px;
+  height: 20px;
+  width: 30px;
   cursor: pointer;
   z-index: 1010;
   margin-left: 15px;
+  position: relative;
+  padding: 8px;
+  background: rgba(0, 102, 204, 0.05);
+  border-radius: 8px;
 }
 
 .menu-toggle span {
   height: 2px;
   width: 100%;
-  background-color: var(--navbar-text);
-  border-radius: 2px;
-  transition: all 0.3s ease;
+  background: var(--accent-gradient);
+  border-radius: 4px;
+  transition: all 0.4s cubic-bezier(0.68, -0.6, 0.32, 1.6);
 }
 
 .menu-toggle.active span:nth-child(1) {
-  transform: translateY(9px) rotate(45deg);
+  transform: translateY(8px) rotate(45deg);
+  width: 100%;
 }
 
 .menu-toggle.active span:nth-child(2) {
   opacity: 0;
+  transform: translateX(-10px);
 }
 
 .menu-toggle.active span:nth-child(3) {
-  transform: translateY(-9px) rotate(-45deg);
+  transform: translateY(-8px) rotate(-45deg);
+  width: 100%;
 }
 
-/* Mobile Menu */
+/* Mobile Menu - Modern Floating Design */
 .mobile-menu {
   position: fixed;
-  top: var(--navbar-height);
-  left: 0;
-  right: 0;
-  height: calc(100vh - var(--navbar-height));
-  background: var(--navbar-background);
+  top: calc(var(--navbar-height) + var(--navbar-margin-top) + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(-110%);
+  width: 90%;
+  max-width: 400px;
+  max-height: 85vh;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   padding: 2rem 1.5rem;
   z-index: 999;
-  transform: translateY(-100%);
   opacity: 0;
   visibility: hidden;
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.scrolled .mobile-menu {
+  top: calc(var(--navbar-height) + 10px);
 }
 
 .mobile-menu.active {
-  transform: translateY(0);
+  transform: translateX(-50%) translateY(0);
   opacity: 1;
   visibility: visible;
 }
@@ -344,22 +432,23 @@
   box-shadow: 0 4px 15px rgba(0, 102, 204, 0.2);
 }
 
-/* Add consistent body spacing for fixed navbar */
+/* Add consistent body spacing for floating navbar */
 body {
-  padding-top: var(--navbar-height);
+  padding-top: calc(var(--navbar-height) + var(--navbar-margin-top));
 }
 
 .nav-link-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
   color: var(--navbar-text);
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
+  letter-spacing: 0.01em;
 }
 
 /* Active link and hover styles */
 .nav-link.active .nav-link-text,
 .nav-link.active .nav-link-icon {
-  color: var(--primary-color);
+  color: white;
   font-weight: 600;
 }
 
@@ -375,23 +464,46 @@ body {
   color: var(--primary-color);
 }
 
-/* Responsive Styles */
+/* NEW: Ensure active links keep white text on hover */
+.nav-link.active:hover .nav-link-text,
+.nav-link.active:hover .nav-link-icon,
+.nav-links .nav-link.active:hover .nav-link-text,
+.nav-middle .nav-link.active:hover .nav-link-text {
+  color: white !important;
+}
+
+/* Responsive Styles for Floating Navbar */
 @media (max-width: 1024px) {
-  .nav-link-text {
-    display: none;
+  :root {
+    --navbar-width: 96%; /* Wider on smaller screens */
+    --navbar-margin-top: 15px; /* Slightly closer to top */
   }
   
   .nav-link {
-    padding: 0.6rem;
+    padding: 0.5rem 0.8rem;
+  }
+  
+  .nav-link-text {
+    font-size: 0.95rem;
   }
 
-  /* Active styles for mobile */
-  .nav-link.active {
-    background: rgba(0, 102, 204, 0.12);
+  /* Active styles for tablet */
+  .nav-link.active::before {
+    background: var(--accent-gradient);
+  }
+
+  /* Navbar border should be a bit more prominent on smaller screens */
+  .modern-navbar {
+    border: 1px solid rgba(0, 102, 204, 0.2);
   }
 }
 
 @media (max-width: 768px) {
+  :root {
+    --navbar-width: 94%; /* Slightly wider on mobile */
+    --navbar-margin-top: 12px; /* Closer to top on mobile */
+  }
+
   .nav-middle,
   .nav-right {
     display: none;

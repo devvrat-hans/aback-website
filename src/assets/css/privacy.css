@@ -54,7 +54,7 @@
   margin-bottom: 2rem;
 }
 
-.privacy-shapes {
+.hero-shapes {
   position: absolute;
   top: 0;
   left: 0;
@@ -63,14 +63,14 @@
   z-index: 1;
 }
 
-.privacy-shape {
+.hero-shape {
   position: absolute;
   border-radius: 50%;
   opacity: 0.7;
   filter: blur(40px);
 }
 
-.privacy-shape-1 {
+.hero-shape-1 {
   width: 300px;
   height: 300px;
   background: rgba(0, 102, 204, 0.05);
@@ -78,7 +78,7 @@
   right: 10%;
 }
 
-.privacy-shape-2 {
+.hero-shape-2 {
   width: 200px;
   height: 200px;
   background: rgba(0, 195, 255, 0.05);
@@ -86,7 +86,7 @@
   left: 10%;
 }
 
-.privacy-shape-3 {
+.hero-shape-3 {
   width: 150px;
   height: 150px;
   background: linear-gradient(135deg, rgba(0, 102, 204, 0.05), rgba(0, 195, 255, 0.03));
@@ -99,12 +99,15 @@
   display: grid;
   grid-template-columns: 280px 1fr;
   gap: 3rem;
-  align-items: start;
+  width: 100%;
+  position: relative;
 }
 
 @media (max-width: 992px) {
   .privacy-content {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
   }
 }
 
@@ -120,10 +123,16 @@
   transition: var(--transition);
   max-height: calc(100vh - 150px);
   overflow-y: auto;
+  z-index: 100;
+  width: 250px;
 }
 
 .privacy-toc:hover {
   box-shadow: var(--shadow-md);
+}
+
+.privacy-toc.toc-sticky {
+  animation: fadeInSticky 0.3s forwards;
 }
 
 .toc-header h3 {
@@ -163,6 +172,13 @@
 /* Privacy Sections */
 .privacy-sections {
   line-height: 1.7;
+  width: 100%;
+}
+
+@media (max-width: 992px) {
+  .privacy-sections {
+    margin-top: 2rem;
+  }
 }
 
 .privacy-section {
@@ -375,8 +391,23 @@
   }
 }
 
+@keyframes fadeInSticky {
+  from {
+    opacity: 0.8;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fadeInUp 0.6s forwards;
+}
+
+.animate-sticky {
+  animation: fadeInSticky 0.3s forwards;
 }
 
 /* Responsive styles */
@@ -388,10 +419,11 @@
 
 @media (max-width: 992px) {
   .privacy-toc {
-    position: relative;
+    position: sticky;
     top: 0;
+    z-index: 10;
     margin-bottom: 2rem;
-    max-height: none;
+    max-height: 50vh;
   }
   
   .privacy-title {
@@ -482,6 +514,12 @@ html {
   max-width: 1280px;
   margin: 0 auto;
   padding: 0 2rem;
+}
+
+.clearfix::after {
+  content: "";
+  display: table;
+  clear: both;
 }
 
 @media (max-width: 576px) {

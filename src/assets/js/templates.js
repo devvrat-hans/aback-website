@@ -1,36 +1,57 @@
+// filepath: /Users/devvrathans/aback.ai/aback-website/src/assets/js/templates.js
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Loading templates...");
   
+  // Determine if we are at root level (index.html) or in a subdirectory (pages)
+  const isRootLevel = window.location.pathname === '/' || 
+                     window.location.pathname.endsWith('index.html') || 
+                     window.location.pathname.endsWith('/');
+  
+  // Set the correct paths based on current location
+  const navbarPath = isRootLevel ? "/src/templates/shared/navbar.html" : "../templates/shared/navbar.html";
+  const footerPath = isRootLevel ? "/src/templates/shared/footer.html" : "../templates/shared/footer.html";
+  
+  console.log("Using navbar path:", navbarPath);
+  
   // Load navbar
-  fetch("../templates/shared/navbar.html")
+  fetch(navbarPath)
     .then(response => {
       if (!response.ok) {
-        throw new Error(`Failed to load navbar: ${response.status} ${response.statusText}`);
+        throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
       }
       return response.text();
     })
     .then(html => {
       console.log("Navbar template loaded successfully");
-      document.getElementById("navbar-container").innerHTML = html;
-      
-      // Initialize navbar functionality after it's loaded
-      initNavbar();
+      const navContainer = document.getElementById("navbar-container");
+      if (navContainer) {
+        navContainer.innerHTML = html;
+        // Initialize navbar functionality after it's loaded
+        initNavbar();
+      } else {
+        console.error("Navbar container not found in the DOM");
+      }
     })
     .catch(error => {
       console.error("Error loading navbar:", error);
     });
 
   // Load footer
-  fetch("../templates/shared/footer.html")
+  fetch(footerPath)
     .then(response => {
       if (!response.ok) {
-        throw new Error(`Failed to load footer: ${response.status} ${response.statusText}`);
+        throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
       }
       return response.text();
     })
     .then(html => {
       console.log("Footer template loaded successfully");
-      document.getElementById("footer-container").innerHTML = html;
+      const footerContainer = document.getElementById("footer-container");
+      if (footerContainer) {
+        footerContainer.innerHTML = html;
+      } else {
+        console.error("Footer container not found in the DOM");
+      }
     })
     .catch(error => {
       console.error("Error loading footer:", error);
@@ -40,16 +61,17 @@ document.addEventListener("DOMContentLoaded", function () {
 // Initialize navbar functionality
 function initNavbar() {
   const navbar = document.querySelector('.modern-navbar');
+  const navbarContainer = document.getElementById('navbar-container');
   const menuToggle = document.querySelector('.menu-toggle');
-  const mobileMenu = document.createElement('div');
-  mobileMenu.classList.add('mobile-menu');
+  const mobileMenu = document.querySelector('.mobile-menu');
   
-  // Create mobile menu content
-  mobileMenu.innerHTML = createMobileMenuContent();
-  document.body.appendChild(mobileMenu);
+  if (!navbar) {
+    console.error('Navbar not found!');
+    return;
+  }
   
   // Handle menu toggle
-  if (menuToggle) {
+  if (menuToggle && mobileMenu) {
     menuToggle.addEventListener('click', function() {
       this.classList.toggle('active');
       mobileMenu.classList.toggle('active');
@@ -67,8 +89,10 @@ function initNavbar() {
   window.addEventListener('scroll', function() {
     if (window.scrollY > 20) {
       navbar.classList.add('scrolled');
+      if (navbarContainer) navbarContainer.classList.add('scrolled');
     } else {
       navbar.classList.remove('scrolled');
+      if (navbarContainer) navbarContainer.classList.remove('scrolled');
     }
   });
   
@@ -76,57 +100,21 @@ function initNavbar() {
   setActiveNavLink();
   
   // Close mobile menu on window resize (if desktop size)
-  window.addEventListener('resize', function() {
-    if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
-      mobileMenu.classList.remove('active');
-      menuToggle.classList.remove('active');
-      document.body.style.overflow = '';
-    }
-  });
-}
-
-// Create mobile menu content by copying from navbar
-function createMobileMenuContent() {
-  const navLinks = document.querySelector('.nav-links');
-  const linksHTML = navLinks ? Array.from(navLinks.querySelectorAll('.nav-link')).map(link => {
-    const icon = link.querySelector('.nav-link-icon') ? link.querySelector('.nav-link-icon').innerHTML : '';
-    const text = link.querySelector('.nav-link-text').textContent;
-    const href = link.getAttribute('href');
-    
-    return `
-      <a href="${href}" class="mobile-nav-link">
-        <div class="mobile-nav-icon">
-          ${icon || ''}
-        </div>
-        <span>${text}</span>
-      </a>
-    `;
-  }).join('') : '';
+  if (mobileMenu && menuToggle) {
+    window.addEventListener('resize', function() {
+      if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
+        mobileMenu.classList.remove('active');
+        menuToggle.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  }
   
-  return `
-    <div class="mobile-nav-links">
-      ${linksHTML}
-    </div>
-    <div class="mobile-auth-buttons">
-      <a href="login.html" class="mobile-button mobile-login">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
-          <polyline points="10 17 15 12 10 7"></polyline>
-          <line x1="15" y1="12" x2="3" y2="12"></line>
-        </svg>
-        Login
-      </a>
-      <a href="signup.html" class="mobile-button mobile-signup">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <line x1="19" y1="8" x2="19" y2="14"></line>
-          <line x1="22" y1="11" x2="16" y2="11"></line>
-        </svg>
-        Sign Up
-      </a>
-    </div>
-  `;
+  // Show the navbar with animation
+  setTimeout(() => {
+    navbar.style.opacity = '1';
+    navbar.style.transform = 'translateX(-50%) translateY(0)';
+  }, 100);
 }
 
 // Set active nav link based on current page
@@ -138,33 +126,48 @@ function setActiveNavLink() {
   
   // Desktop nav links
   const navLinks = document.querySelectorAll('.nav-link');
-  navLinks.forEach(link => {
-    const linkHref = link.getAttribute('href');
-    const linkPageName = linkHref.split('/').pop(); // Get just the filename from the href
-    
-    // Check if current page matches the link's target page
-    if (linkPageName === currentPageName || 
-        (currentPageName === 'index.html' && (linkPageName === '' || linkHref.endsWith('index.html')))) {
-      link.classList.add('active');
-      console.log("Set active:", linkHref);
-    } else {
-      link.classList.remove('active');
-    }
-  });
-  
-  // Mobile nav links (after they're created)
-  setTimeout(() => {
-    const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
-    mobileNavLinks.forEach(link => {
-      const linkHref = link.getAttribute('href');
-      const linkPageName = linkHref.split('/').pop();
+  if (navLinks.length) {
+    navLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      // Extract page name from href
+      const hrefPageName = href.split('/').pop();
       
-      if (linkPageName === currentPageName || 
-          (currentPageName === 'index.html' && (linkPageName === '' || linkHref.endsWith('index.html')))) {
+      // Check for home page special case
+      const isHomePage = currentPath === '/' || 
+                       currentPath.endsWith('index.html') || 
+                       currentPath.endsWith('/');
+      
+      // Mark active state
+      if (isHomePage && (hrefPageName === 'index.html' || href === '/' || href.endsWith('/'))) {
+        link.classList.add('active');
+      } else if (hrefPageName === currentPageName) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');
       }
     });
-  }, 100);
+  }
+  
+  // Mobile nav links 
+  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+  if (mobileLinks.length) {
+    mobileLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      const hrefPageName = href.split('/').pop();
+      
+      // Check for home page special case
+      const isHomePage = currentPath === '/' || 
+                       currentPath.endsWith('index.html') || 
+                       currentPath.endsWith('/');
+      
+      // Mark active state
+      if (isHomePage && (hrefPageName === 'index.html' || href === '/' || href.endsWith('/'))) {
+        link.classList.add('active');
+      } else if (hrefPageName === currentPageName) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
 }
