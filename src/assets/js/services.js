@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function() {
   if (!noResults) {
     noResults = document.createElement('div');
     noResults.className = 'no-results';
-    noResults.textContent = 'No automation solutions found matching your search. Try different keywords.';
+    // noResults.textContent = 'No automation solutions found matching your search. Try different keywords.';
     document.querySelector('.agents-grid')?.appendChild(noResults);
   }
   
