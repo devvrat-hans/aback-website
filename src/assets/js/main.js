@@ -2,9 +2,8 @@
 document.addEventListener("DOMContentLoaded", function() {
   console.log("Main script loaded");
 
-  // Load shared components
-  loadNavbar();
-  loadFooter();
+  // Note: templates.js handles loading shared components (navbar, footer, chatbot)
+  // We only initialize the main functionality here
   
   // Initialize features after a slight delay to ensure DOM is ready
   setTimeout(() => {
@@ -40,48 +39,6 @@ function setHomeActiveIfIndex() {
     homeLinks.forEach(link => {
       link.classList.add('active');
     });
-  }
-}
-
-// Load navbar component
-function loadNavbar() {
-  const navbarContainer = document.getElementById("navbar-container");
-  if (navbarContainer) {
-    fetch("templates/shared/navbar.html")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text();
-      })
-      .then(data => {
-        navbarContainer.innerHTML = data;
-        
-        // Set active menu item based on current page
-        setActiveNavItem();
-        
-        // Initialize mobile menu after navbar is loaded
-        initMobileMenu();
-      })
-      .catch(error => console.error("Error loading navbar:", error));
-  }
-}
-
-// Load footer component
-function loadFooter() {
-  const footerContainer = document.getElementById("footer-container");
-  if (footerContainer) {
-    fetch("templates/shared/footer.html")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return response.text();
-      })
-      .then(data => {
-        footerContainer.innerHTML = data;
-      })
-      .catch(error => console.error("Error loading footer:", error));
   }
 }
 

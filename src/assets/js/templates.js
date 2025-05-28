@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", function () {
   // Set the correct paths based on current location
   const navbarPath = isRootLevel ? "/src/templates/shared/navbar.html" : "../templates/shared/navbar.html";
   const footerPath = isRootLevel ? "/src/templates/shared/footer.html" : "../templates/shared/footer.html";
+  const chatbotPath = isRootLevel ? "/src/templates/shared/chatbot.html" : "../templates/shared/chatbot.html";
   
   console.log("Using navbar path:", navbarPath);
   
@@ -56,7 +57,83 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(error => {
       console.error("Error loading footer:", error);
     });
+    
+  // Load chatbot
+  fetch(chatbotPath)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error("Failed to load chatbot: " + response.status + " " + response.statusText);
+      }
+      return response.text();
+    })
+    .then(html => {
+      console.log("Chatbot template loaded successfully");
+      const chatbotContainer = document.createElement('div');
+      chatbotContainer.id = 'chatbot-container';
+      chatbotContainer.innerHTML = html;
+      document.body.appendChild(chatbotContainer);
+      console.log("Chatbot HTML inserted into DOM");
+      
+      // Load chatbot script after HTML is inserted with a small delay
+      setTimeout(() => {
+        console.log("Loading chatbot scripts...");
+        const chatbotScriptPath = isRootLevel ? '/src/assets/js/chatbot.js' : '../assets/js/chatbot.js';
+        const configScriptPath = isRootLevel ? '/src/assets/js/web-config.js' : '../assets/js/web-config.js';
+        
+        // Try to load config first, but don't block chatbot if it fails
+        loadScript(configScriptPath, (configError) => {
+          if (configError) {
+            console.log("Config script failed to load, proceeding with chatbot script anyway");
+          } else {
+            console.log("Config script loaded successfully");
+          }
+          
+          // Load chatbot script regardless of config script status
+          loadScript(chatbotScriptPath, (chatbotError) => {
+            if (chatbotError) {
+              console.error("Failed to load chatbot script:", chatbotError);
+              return;
+            }
+            
+            console.log("Chatbot script loaded, initializing...");
+            // Force initialization if the chatbot hasn't initialized yet
+            setTimeout(() => {
+              if (typeof window.initializeChatbot === 'function') {
+                console.log("Calling initializeChatbot function");
+                window.initializeChatbot();
+              } else {
+                console.error("initializeChatbot function not found");
+              }
+            }, 100);
+          });
+        });
+      }, 100);
+    })
+    .catch(error => {
+      console.error("Error loading chatbot:", error);
+    });
 });
+
+// Function to dynamically load scripts
+function loadScript(src, callback) {
+  console.log("Loading script:", src);
+  const script = document.createElement('script');
+  script.src = src;
+  script.async = true;
+  script.onload = function() {
+    console.log("Script loaded successfully:", src);
+    if (typeof callback === 'function') {
+      callback();
+    }
+  };
+  script.onerror = function() {
+    console.error("Failed to load script:", src);
+    if (typeof callback === 'function') {
+      callback(new Error('Failed to load script: ' + src));
+    }
+  };
+  document.head.appendChild(script);
+}
 
 // Initialize navbar functionality
 function initNavbar() {
