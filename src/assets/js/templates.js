@@ -8,38 +8,55 @@ document.addEventListener("DOMContentLoaded", function () {
                      window.location.pathname.endsWith('index.html') || 
                      window.location.pathname === '/index.html';
   
-  // Check if we're in a pages subdirectory (for traditional HTML routing)
+  // Check if we're in local development with pages subdirectory
+  const isLocalDev = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '';
+  
+  // Check if we're in a pages subdirectory (for local development)
   const isInPagesDir = window.location.pathname.includes('/src/pages/') || 
                       window.location.pathname.includes('/pages/');
   
-  // For clean URLs, check if we're accessing a page through clean URL routing
+  // For production clean URLs (aback.ai domain structure)
   const cleanURLPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
   const currentPage = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
   const isCleanURL = cleanURLPages.includes(currentPage);
   
+  // Determine if we're in production environment
+  const isProduction = window.location.hostname === 'aback.ai' || 
+                      window.location.hostname === 'www.aback.ai' ||
+                      (!isLocalDev && !isInPagesDir);
+  
   console.log("Is root level:", isRootLevel);
+  console.log("Is local development:", isLocalDev);
   console.log("Is in pages directory:", isInPagesDir);
   console.log("Is clean URL:", isCleanURL);
+  console.log("Is production:", isProduction);
   console.log("Current page:", currentPage);
   
   // Set the correct paths based on current location
   let navbarPath, footerPath, chatbotPath;
   
-  if (isRootLevel && !isCleanURL && !isInPagesDir) {
-    // We're at the root index.html
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  } else if (isInPagesDir) {
-    // We're accessing files through the src/pages/ directory structure
-    navbarPath = "../templates/shared/navbar.html";
-    footerPath = "../templates/shared/footer.html";
-    chatbotPath = "../templates/shared/chatbot.html";
+  if (isProduction || isCleanURL) {
+    // Production environment with clean URLs (aback.ai/services, etc.)
+    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
+    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
+    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+  } else if (isLocalDev && isInPagesDir) {
+    // Local development with src/pages/ directory structure
+    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
+    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
+    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+  } else if (isLocalDev && isRootLevel) {
+    // Local development at root level
+    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
+    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
+    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
   } else {
-    // Clean URLs or other cases - use absolute paths
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
+    // Fallback - use absolute paths
+    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
+    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
+    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
   }
   
   console.log("Using navbar path:", navbarPath);
@@ -130,14 +147,12 @@ document.addEventListener("DOMContentLoaded", function () {
       chatbotContainer.id = 'chatbot-container';
       chatbotContainer.innerHTML = html;
       document.body.appendChild(chatbotContainer);
-      console.log("Chatbot HTML inserted into DOM");
-      
-      // Load chatbot script after HTML is inserted with a small delay
-      setTimeout(() => {
-        console.log("Loading chatbot scripts...");
-        // Always use absolute paths for clean URLs
-        const chatbotScriptPath = '/src/assets/js/chatbot.js';
-        const configScriptPath = '/src/assets/js/web-config.js';
+      console.log("Chatbot HTML inserted into DOM");        // Load chatbot script after HTML is inserted with a small delay
+        setTimeout(() => {
+          console.log("Loading chatbot scripts...");
+          // Use absolute paths for all environments
+          const chatbotScriptPath = '/Users/devvrathans/aback.ai/aback-website/src/assets/js/chatbot.js';
+          const configScriptPath = '/Users/devvrathans/aback.ai/aback-website/src/assets/js/web-config.js';
         
         // Try to load config first, but don't block chatbot if it fails
         loadScript(configScriptPath, (configError) => {
@@ -260,7 +275,12 @@ function initNavbar() {
 // Set active nav link based on current page
 function setActiveNavLink() {
   const currentPath = window.location.pathname;
-  const currentPageName = currentPath.replace(/^\//, '') || 'home'; // Remove leading slash
+  let currentPageName = currentPath.replace(/^\//, '') || 'home'; // Remove leading slash
+  
+  // Handle clean URLs in production (aback.ai/services -> services)
+  if (currentPath === '/') {
+    currentPageName = 'home';
+  }
   
   console.log("Current path:", currentPath);
   console.log("Current page name:", currentPageName);
@@ -270,20 +290,35 @@ function setActiveNavLink() {
   if (navLinks.length) {
     navLinks.forEach(link => {
       const href = link.getAttribute('href');
-      const hrefPageName = href.replace(/^\//, '') || 'home'; // Remove leading slash
+      let hrefPageName;
+      
+      // Extract page name from href
+      if (href === '/' || href.includes('index.html')) {
+        hrefPageName = 'home';
+      } else if (href.includes('/src/pages/')) {
+        // Local development structure: /src/pages/services.html -> services
+        hrefPageName = href.split('/').pop().replace('.html', '');
+      } else {
+        // Clean URL structure: /services -> services or absolute paths
+        hrefPageName = href.replace(/^\//, '').replace('.html', '') || 'home';
+        // Handle absolute paths
+        if (hrefPageName.includes('/')) {
+          hrefPageName = hrefPageName.split('/').pop().replace('.html', '');
+        }
+      }
       
       // Check for home page special case
-      const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath === '';
+      const isHomePage = currentPageName === 'home' || currentPageName === '';
       
       // Enhanced match logic
       let isMatch = false;
       
       // Home page matches
-      if (isHomePage && (href === '/' || hrefPageName === 'home' || hrefPageName === '')) {
+      if (isHomePage && hrefPageName === 'home') {
         isMatch = true;
       } 
-      // Exact match for clean URLs
-      else if (hrefPageName === currentPageName && currentPageName !== '') {
+      // Exact match for other pages
+      else if (hrefPageName === currentPageName && currentPageName !== '' && currentPageName !== 'home') {
         isMatch = true;
       }
       
@@ -300,20 +335,35 @@ function setActiveNavLink() {
   if (mobileLinks.length) {
     mobileLinks.forEach(link => {
       const href = link.getAttribute('href');
-      const hrefPageName = href.replace(/^\//, '') || 'home';
+      let hrefPageName;
+      
+      // Extract page name from href
+      if (href === '/' || href.includes('index.html')) {
+        hrefPageName = 'home';
+      } else if (href.includes('/src/pages/')) {
+        // Local development structure: /src/pages/services.html -> services
+        hrefPageName = href.split('/').pop().replace('.html', '');
+      } else {
+        // Clean URL structure: /services -> services or absolute paths
+        hrefPageName = href.replace(/^\//, '').replace('.html', '') || 'home';
+        // Handle absolute paths
+        if (hrefPageName.includes('/')) {
+          hrefPageName = hrefPageName.split('/').pop().replace('.html', '');
+        }
+      }
       
       // Check for home page special case
-      const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath === '';
+      const isHomePage = currentPageName === 'home' || currentPageName === '';
       
       // Enhanced match logic for mobile
       let isMatch = false;
       
       // Home page matches
-      if (isHomePage && (href === '/' || hrefPageName === 'home' || hrefPageName === '')) {
+      if (isHomePage && hrefPageName === 'home') {
         isMatch = true;
       } 
-      // Exact match for clean URLs
-      else if (hrefPageName === currentPageName && currentPageName !== '') {
+      // Exact match for other pages
+      else if (hrefPageName === currentPageName && currentPageName !== '' && currentPageName !== 'home') {
         isMatch = true;
       }
       
