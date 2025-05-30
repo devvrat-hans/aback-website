@@ -204,20 +204,32 @@
 /* Enhanced specificity for active class to ensure it's not overridden */
 .nav-link.active,
 .nav-links .nav-link.active,
-.nav-middle .nav-link.active {
+.nav-middle .nav-link.active,
+.modern-navbar .nav-link.active {
   color: white !important;
   font-weight: 600;
+  background: rgba(0, 102, 204, 0.15) !important;
+  border-radius: 10px;
 }
 
-.nav-link.active::before {
-  background: var(--accent-gradient);
-  opacity: 1;
-  transform: translateY(0) scale(1);
+.nav-link.active::before,
+.nav-links .nav-link.active::before,
+.nav-middle .nav-link.active::before {
+  background: var(--accent-gradient) !important;
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
 }
 
 /* Force active tab to maintain its background color */
 .nav-link.active:hover::before {
-  background: var(--accent-gradient);
+  background: var(--accent-gradient) !important;
+}
+
+/* Also ensure mobile nav active styles */
+.mobile-nav-link.active {
+  background: rgba(0, 102, 204, 0.15) !important;
+  color: var(--primary-color) !important;
+  font-weight: 600 !important;
 }
 
 /* Authentication Buttons */

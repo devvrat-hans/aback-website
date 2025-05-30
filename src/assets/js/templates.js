@@ -1,11 +1,13 @@
-// filepath: /Users/devvrathans/aback.ai/aback-website/src/assets/js/templates.js
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Loading templates...");
+  console.log("Current pathname:", window.location.pathname);
   
   // Determine if we are at root level (index.html) or in a subdirectory (pages)
   const isRootLevel = window.location.pathname === '/' || 
                      window.location.pathname.endsWith('index.html') || 
                      window.location.pathname.endsWith('/');
+  
+  console.log("Is root level:", isRootLevel);
   
   // Set the correct paths based on current location
   const navbarPath = isRootLevel ? "/src/templates/shared/navbar.html" : "../templates/shared/navbar.html";
@@ -13,50 +15,78 @@ document.addEventListener("DOMContentLoaded", function () {
   const chatbotPath = isRootLevel ? "/src/templates/shared/chatbot.html" : "../templates/shared/chatbot.html";
   
   console.log("Using navbar path:", navbarPath);
+  console.log("Using footer path:", footerPath);
   
-  // Load navbar
-  fetch(navbarPath)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
-      }
-      return response.text();
-    })
-    .then(html => {
-      console.log("Navbar template loaded successfully");
-      const navContainer = document.getElementById("navbar-container");
-      if (navContainer) {
+  // Check if containers exist and are empty
+  const navContainer = document.getElementById("navbar-container");
+  const footerContainer = document.getElementById("footer-container");
+  
+  console.log("Navbar container found:", !!navContainer);
+  console.log("Footer container found:", !!footerContainer);
+  console.log("Navbar container is empty:", navContainer && navContainer.children.length === 0);
+  console.log("Footer container is empty:", footerContainer && footerContainer.children.length === 0);
+  
+  // Only load navbar if container is empty (not already populated)
+  if (navContainer && navContainer.children.length === 0) {
+    console.log("Starting navbar fetch...");
+    fetch(navbarPath)
+      .then(response => {
+        console.log("Navbar response status:", response.status);
+        if (!response.ok) {
+          throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
+        }
+        return response.text();
+      })
+      .then(html => {
+        console.log("Navbar template loaded successfully, length:", html.length);
         navContainer.innerHTML = html;
+        console.log("Navbar HTML inserted into container");
         // Initialize navbar functionality after it's loaded
-        initNavbar();
-      } else {
-        console.error("Navbar container not found in the DOM");
+        setTimeout(() => {
+          initNavbar();
+          // Set active navigation using the robust function from main.js
+          if (typeof setActiveNavigation === 'function') {
+            setActiveNavigation();
+          }
+        }, 100);
+      })
+      .catch(error => {
+        console.error("Error loading navbar:", error);
+      });
+  } else if (navContainer) {
+    console.log("Navbar already exists, initializing...");
+    // Initialize navbar functionality for existing content
+    setTimeout(() => {
+      initNavbar();
+      // Set active navigation using the robust function from main.js
+      if (typeof setActiveNavigation === 'function') {
+        setActiveNavigation();
       }
-    })
-    .catch(error => {
-      console.error("Error loading navbar:", error);
-    });
+    }, 100);
+  }
 
-  // Load footer
-  fetch(footerPath)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
-      }
-      return response.text();
-    })
-    .then(html => {
-      console.log("Footer template loaded successfully");
-      const footerContainer = document.getElementById("footer-container");
-      if (footerContainer) {
+  // Only load footer if container is empty (not already populated)
+  if (footerContainer && footerContainer.children.length === 0) {
+    console.log("Starting footer fetch...");
+    fetch(footerPath)
+      .then(response => {
+        console.log("Footer response status:", response.status);
+        if (!response.ok) {
+          throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
+        }
+        return response.text();
+      })
+      .then(html => {
+        console.log("Footer template loaded successfully, length:", html.length);
         footerContainer.innerHTML = html;
-      } else {
-        console.error("Footer container not found in the DOM");
-      }
-    })
-    .catch(error => {
-      console.error("Error loading footer:", error);
-    });
+        console.log("Footer HTML inserted into container");
+      })
+      .catch(error => {
+        console.error("Error loading footer:", error);
+      });
+  } else if (footerContainer) {
+    console.log("Footer already exists, skipping load");
+  }
     
   // Load chatbot
   fetch(chatbotPath)
@@ -173,8 +203,12 @@ function initNavbar() {
     }
   });
   
-  // Set active link based on current page
-  setActiveNavLink();
+  // Set active link based on current page - use robust function from main.js if available
+  if (typeof setActiveNavigation === 'function') {
+    setActiveNavigation();
+  } else {
+    setActiveNavLink();
+  }
   
   // Close mobile menu on window resize (if desktop size)
   if (mobileMenu && menuToggle) {
@@ -197,27 +231,34 @@ function initNavbar() {
 // Set active nav link based on current page
 function setActiveNavLink() {
   const currentPath = window.location.pathname;
-  const currentPageName = currentPath.split('/').pop() || 'index.html';
+  const currentPageName = currentPath.replace(/^\//, '') || 'home'; // Remove leading slash
   
-  console.log("Current page:", currentPageName);
+  console.log("Current path:", currentPath);
+  console.log("Current page name:", currentPageName);
   
   // Desktop nav links
   const navLinks = document.querySelectorAll('.nav-link');
   if (navLinks.length) {
     navLinks.forEach(link => {
       const href = link.getAttribute('href');
-      // Extract page name from href
-      const hrefPageName = href.split('/').pop();
+      const hrefPageName = href.replace(/^\//, '') || 'home'; // Remove leading slash
       
       // Check for home page special case
-      const isHomePage = currentPath === '/' || 
-                       currentPath.endsWith('index.html') || 
-                       currentPath.endsWith('/');
+      const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath === '';
       
-      // Mark active state
-      if (isHomePage && (hrefPageName === 'index.html' || href === '/' || href.endsWith('/'))) {
-        link.classList.add('active');
-      } else if (hrefPageName === currentPageName) {
+      // Enhanced match logic
+      let isMatch = false;
+      
+      // Home page matches
+      if (isHomePage && (href === '/' || hrefPageName === 'home' || hrefPageName === '')) {
+        isMatch = true;
+      } 
+      // Exact match for clean URLs
+      else if (hrefPageName === currentPageName && currentPageName !== '') {
+        isMatch = true;
+      }
+      
+      if (isMatch) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');
@@ -230,17 +271,24 @@ function setActiveNavLink() {
   if (mobileLinks.length) {
     mobileLinks.forEach(link => {
       const href = link.getAttribute('href');
-      const hrefPageName = href.split('/').pop();
+      const hrefPageName = href.replace(/^\//, '') || 'home';
       
       // Check for home page special case
-      const isHomePage = currentPath === '/' || 
-                       currentPath.endsWith('index.html') || 
-                       currentPath.endsWith('/');
+      const isHomePage = currentPath === '/' || currentPath === '/home' || currentPath === '';
       
-      // Mark active state
-      if (isHomePage && (hrefPageName === 'index.html' || href === '/' || href.endsWith('/'))) {
-        link.classList.add('active');
-      } else if (hrefPageName === currentPageName) {
+      // Enhanced match logic for mobile
+      let isMatch = false;
+      
+      // Home page matches
+      if (isHomePage && (href === '/' || hrefPageName === 'home' || hrefPageName === '')) {
+        isMatch = true;
+      } 
+      // Exact match for clean URLs
+      else if (hrefPageName === currentPageName && currentPageName !== '') {
+        isMatch = true;
+      }
+      
+      if (isMatch) {
         link.classList.add('active');
       } else {
         link.classList.remove('active');

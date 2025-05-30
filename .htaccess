@@ -1,7 +1,20 @@
 # Enable URL Rewriting
 RewriteEngine On
 
-# Remove .html extension from URLs
+# Serve index.html for root domain
+RewriteRule ^$ index.html [L]
+
+# Redirect /index to root domain
+RewriteRule ^index/?$ /? [R=301,L]
+
+# Map clean URLs to pages directory (except for existing files/directories)
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/src/
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^(services|whyus|about|careers|contact)/?$ /src/pages/$1.html [L]
+
+# Remove .html extension from URLs in pages directory
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.html [NC,L]
@@ -11,8 +24,13 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
-# Redirect .html URLs to clean URLs
-RewriteCond %{THE_REQUEST} \s/+(.+?)\.html[\s?] [NC]
+# Redirect direct access to src/pages/ URLs to clean URLs
+RewriteCond %{THE_REQUEST} \s/+src/pages/([^?\s]+)\.html[\s?] [NC]
+RewriteRule ^ /%1? [R=301,L]
+
+# Redirect .html URLs to clean URLs (except in src directory)
+RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
+RewriteCond %{REQUEST_URI} !^/src/
 RewriteRule ^ /%1? [R=301,L]
 
 # Redirect .php URLs to clean URLs (except for API files)

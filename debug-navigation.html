@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Navigation Active State</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .debug-info { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .active { background: lightgreen !important; color: white !important; font-weight: bold; }
+        .test-nav { margin: 20px 0; }
+        .test-nav a { display: inline-block; padding: 10px 15px; margin: 5px; background: #ddd; color: black; text-decoration: none; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Navigation Active State Debug Tool</h1>
+    
+    <div class="debug-info">
+        <h3>Current Page Information:</h3>
+        <p><strong>Pathname:</strong> <span id="current-path"></span></p>
+        <p><strong>Page Name:</strong> <span id="current-page"></span></p>
+        <p><strong>Is Home Page:</strong> <span id="is-home"></span></p>
+    </div>
+
+    <div class="test-nav">
+        <h3>Test Navigation Links:</h3>
+        <a href="/index.html" class="nav-link">Home</a>
+        <a href="/src/pages/services.html" class="nav-link">Services</a>
+        <a href="/src/pages/whyus.html" class="nav-link">Why Us</a>
+        <a href="/src/pages/about.html" class="nav-link">About</a>
+        <a href="/src/pages/careers.html" class="nav-link">Careers</a>
+    </div>
+
+    <div class="debug-info">
+        <h3>Active Links Found:</h3>
+        <div id="active-links"></div>
+    </div>
+
+    <button onclick="runActivationTest()">Run Navigation Test</button>
+    <button onclick="showCurrentState()">Show Current State</button>
+    <button onclick="testUrlScenarios()">Test All URL Scenarios</button>
+
+    <script>
+        // Copy our robust navigation function here for testing
+        function setActiveNavigation() {
+            console.log('Setting active navigation...');
+            
+            // Get current page information
+            const currentPath = window.location.pathname;
+            const currentSearch = window.location.search;
+            const currentHash = window.location.hash;
+            
+            console.log('Current path:', currentPath);
+            console.log('Current search:', currentSearch);
+            console.log('Current hash:', currentHash);
+            
+            // Extract the page name from the current URL
+            let currentPage = '';
+            let currentPageClean = ''; // Clean version without .html
+            
+            // Check if we're on the home page (multiple variations)
+            const isHomePage = currentPath === '/' || 
+                             currentPath === '/index' ||
+                             currentPath === '/index.html' || 
+                             currentPath.endsWith('/index.html') ||
+                             currentPath.endsWith('/') ||
+                             currentPath.includes('index.html');
+            
+            if (isHomePage) {
+                currentPage = 'index.html';
+                currentPageClean = 'index';
+            } else {
+                // Extract page name from path
+                const pathParts = currentPath.split('/');
+                const pathPage = pathParts[pathParts.length - 1] || 'index.html';
+                
+                // Handle cases where path doesn't end with .html (clean URLs from .htaccess)
+                if (!pathPage.includes('.html')) {
+                    currentPageClean = pathPage;
+                    currentPage = pathPage + '.html';
+                } else {
+                    currentPage = pathPage;
+                    currentPageClean = pathPage.replace('.html', '');
+                }
+                
+                // Double-check if it matches any of our known pages
+                const knownPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
+                const matchedPage = knownPages.find(page => currentPath.includes(page));
+                if (matchedPage) {
+                    currentPageClean = matchedPage;
+                    currentPage = matchedPage + '.html';
+                }
+            }
+            
+            console.log('Detected current page:', currentPage);
+            console.log('Detected current page clean:', currentPageClean);
+            
+            // Update debug info
+            document.getElementById('current-path').textContent = currentPath;
+            document.getElementById('current-page').textContent = `${currentPage} (clean: ${currentPageClean})`;
+            document.getElementById('is-home').textContent = isHomePage;
+            
+            // Clear all active states first
+            const allNavLinks = document.querySelectorAll('.nav-link');
+            allNavLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Set active states for nav links
+            const navLinks = document.querySelectorAll('.nav-link');
+            navLinks.forEach(link => {
+                const href = link.getAttribute('href');
+                if (!href) return;
+                
+                const linkPage = href.split('/').pop() || 'index.html';
+                const linkPageClean = linkPage.replace('.html', '');
+                
+                console.log('Checking link:', href, 'Link page:', linkPage, 'Link page clean:', linkPageClean);
+                
+                // Enhanced match logic to handle both clean URLs and .html URLs
+                let isMatch = false;
+                
+                // Check for home page matches
+                if ((currentPage === 'index.html' || currentPageClean === 'index') && 
+                    (linkPage === 'index.html' || href.includes('index.html'))) {
+                    isMatch = true;
+                }
+                // Check for exact matches (with .html)
+                else if (currentPage !== 'index.html' && linkPage === currentPage) {
+                    isMatch = true;
+                }
+                // Check for clean URL matches (without .html)
+                else if (currentPageClean !== 'index' && linkPageClean === currentPageClean) {
+                    isMatch = true;
+                }
+                // Check if current clean page matches link clean page
+                else if (currentPageClean && linkPageClean && currentPageClean === linkPageClean) {
+                    isMatch = true;
+                }
+                
+                if (isMatch) {
+                    link.classList.add('active');
+                    console.log('Set active for link:', href, 'Match reason:', 
+                        isMatch && currentPage === 'index.html' ? 'Home page match' :
+                        isMatch && linkPage === currentPage ? 'Exact .html match' :
+                        isMatch && linkPageClean === currentPageClean ? 'Clean URL match' : 'Other match');
+                }
+            });
+        }
+
+        function runActivationTest() {
+            setActiveNavigation();
+            showCurrentState();
+        }
+
+        function showCurrentState() {
+            const activeLinks = document.querySelectorAll('.nav-link.active');
+            const activeLinksDiv = document.getElementById('active-links');
+            
+            if (activeLinks.length === 0) {
+                activeLinksDiv.innerHTML = '<p style="color: red;">No active links found!</p>';
+            } else {
+                let html = '<ul>';
+                activeLinks.forEach(link => {
+                    html += `<li style="color: green;"><strong>${link.textContent}</strong> (${link.getAttribute('href')})</li>`;
+                });
+                html += '</ul>';
+                activeLinksDiv.innerHTML = html;
+            }
+        }
+
+        // Test different URL scenarios
+        function testUrlScenarios() {
+            const testUrls = [
+                '/',
+                '/index',
+                '/index.html',
+                '/whyus',
+                '/whyus.html',
+                '/services',
+                '/services.html',
+                '/about',
+                '/about.html'
+            ];
+            
+            console.log('Testing URL scenarios:');
+            testUrls.forEach(url => {
+                console.log(`\nTesting URL: ${url}`);
+                // Simulate different URL
+                Object.defineProperty(window.location, 'pathname', {
+                    writable: true,
+                    value: url
+                });
+                setActiveNavigation();
+            });
+            
+            // Reset to actual URL
+            location.reload();
+        }
+
+        // Run on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            runActivationTest();
+        });
+    </script>
+</body>
+</html>

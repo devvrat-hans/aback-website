@@ -50,29 +50,47 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Get the page name from the current path
       const currentPagePath = currentPath.split('/').pop() || 'index.html';
-      const currentPageDir = currentPath.split('/').slice(-2, -1)[0] || '';
+      const currentPageClean = currentPagePath.replace('.html', '');
       
       // Get the page name from the href
       const hrefPagePath = href.split('/').pop();
+      const hrefPageClean = hrefPagePath.replace('.html', '');
       
-      // Check if we're on the homepage
-      const isHomePage = currentPath === '/' || currentPath.endsWith('index.html');
+      // Check if we're on the homepage (handle both /index and / and /index.html)
+      const isHomePage = currentPath === '/' || 
+                         currentPath === '/index' ||
+                         currentPath.endsWith('index.html') ||
+                         currentPath.endsWith('/index');
       const isHomeLink = href.endsWith('index.html');
       
-      // Special handling for pages in folders
+      // Enhanced matching logic for both clean URLs and .html URLs
+      let isMatch = false;
+      
+      // Special handling for home page
       if (isHomePage && isHomeLink) {
-        link.classList.add('active');
+        isMatch = true;
       } 
-      // If the href ends with the current page name
+      // Exact match with .html extension
       else if (hrefPagePath === currentPagePath) {
-        link.classList.add('active');
+        isMatch = true;
+      }
+      // Clean URL match (without .html)
+      else if (hrefPageClean === currentPageClean && currentPageClean !== '') {
+        isMatch = true;
       }
       // Check if this is a page in the pages directory
       else if (currentPath.includes('/pages/') && href.includes('/pages/') && 
               href.split('/pages/')[1] === currentPath.split('/pages/')[1]) {
-        link.classList.add('active');
+        isMatch = true;
       }
-      else {
+      // Handle clean URLs from .htaccess rewriting
+      else if (currentPath.includes('/' + hrefPageClean) && hrefPageClean !== 'index') {
+        isMatch = true;
+      }
+      
+      if (isMatch) {
+        link.classList.add('active');
+      } else {
         link.classList.remove('active');
       }
     });
@@ -81,17 +99,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const mobileLinks = document.querySelectorAll('.mobile-nav-link');
     if (mobileLinks.length) {
       const currentPagePath = currentPath.split('/').pop() || 'index.html';
+      const currentPageClean = currentPagePath.replace('.html', '');
       
       mobileLinks.forEach(link => {
         const href = link.getAttribute('href');
         const hrefPagePath = href.split('/').pop();
+        const hrefPageClean = hrefPagePath.replace('.html', '');
         
-        if ((currentPagePath === 'index.html' || currentPath === '/') && href.endsWith('index.html')) {
-          link.classList.add('active');
-        } else if (hrefPagePath === currentPagePath) {
-          link.classList.add('active');
-        } else if (currentPath.includes('/pages/') && href.includes('/pages/') && 
+        // Enhanced matching logic for mobile links
+        let isMatch = false;
+        
+        // Home page check
+        if ((currentPagePath === 'index.html' || currentPath === '/' || currentPath === '/index') && href.endsWith('index.html')) {
+          isMatch = true;
+        } 
+        // Exact match with .html
+        else if (hrefPagePath === currentPagePath) {
+          isMatch = true;
+        }
+        // Clean URL match (without .html)
+        else if (hrefPageClean === currentPageClean && currentPageClean !== '') {
+          isMatch = true;
+        }
+        // Pages directory check
+        else if (currentPath.includes('/pages/') && href.includes('/pages/') && 
                  href.split('/pages/')[1] === currentPath.split('/pages/')[1]) {
+          isMatch = true;
+        }
+        // Handle clean URLs from .htaccess rewriting
+        else if (currentPath.includes('/' + hrefPageClean) && hrefPageClean !== 'index') {
+          isMatch = true;
+        }
+        
+        if (isMatch) {
           link.classList.add('active');
         } else {
           link.classList.remove('active');
@@ -100,8 +140,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  // Initialize active link
-  setActiveNavLink();
+  // Initialize active link - use robust function from main.js if available
+  if (typeof setActiveNavigation === 'function') {
+    setActiveNavigation();
+  } else {
+    setActiveNavLink();
+  }
   
   // Add smooth appearance animation on page load
   setTimeout(() => {

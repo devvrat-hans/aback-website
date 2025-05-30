@@ -12,6 +12,14 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Initialize navbar scroll effect
     initNavbarScroll();
+    
+    // Initialize mobile menu
+    initMobileMenu();
+    
+    // Set active navigation after navbar is loaded
+    setTimeout(() => {
+      setActiveNavigation();
+    }, 200);
   }, 100);
 
   // Initialize feature box animations
@@ -19,52 +27,190 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Initialize smooth scroll if available
   initSmoothScroll();
-  
-  // Explicitly set home link active if on index page
-  setHomeActiveIfIndex();
 });
 
-// Function to explicitly set home link as active when on index page
-function setHomeActiveIfIndex() {
-  const currentPath = window.location.pathname;
-  const isHomePage = currentPath.endsWith('index.html') || 
-                     currentPath === '/' || 
-                     currentPath.endsWith('/aback-website/') ||
-                     currentPath.endsWith('/aback.ai/') ||
-                     currentPath.endsWith('/aback-website');
-                     
-  if (isHomePage) {
-    // Try to find the home link in both navbar and possible custom implementations
-    const homeLinks = document.querySelectorAll('.home-link, a[href="../../index.html"], a[href="index.html"], a[href="/"]');
-    homeLinks.forEach(link => {
-      link.classList.add('active');
-    });
-  }
-}
-
-// Set active navigation item based on current page
-function setActiveNavItem() {
-  const currentPath = window.location.pathname;
-  const filename = currentPath.split('/').pop() || 'index.html'; // Default to index.html if at root
-  const navLinks = document.querySelectorAll(".nav-link");
-  const isHomePage = filename === 'index.html' || currentPath === '/' || currentPath.endsWith('/aback-website/');
+// Robust function to set active navigation for any hosting environment
+function setActiveNavigation() {
+  console.log('Setting active navigation...');
   
-  navLinks.forEach(link => {
-    const href = link.getAttribute("href");
+  // Get current page information
+  const currentPath = window.location.pathname;
+  const currentSearch = window.location.search;
+  const currentHash = window.location.hash;
+  
+  console.log('Current path:', currentPath);
+  console.log('Current search:', currentSearch);
+  console.log('Current hash:', currentHash);
+  
+  // Extract the page name from the current URL
+  let currentPage = '';
+  let currentPageClean = ''; // Clean version without .html
+  
+  // Check if we're on the home page (multiple variations)
+  const isHomePage = currentPath === '/' || 
+                     currentPath === '/index' ||
+                     currentPath === '/index.html' || 
+                     currentPath.endsWith('/index.html') ||
+                     currentPath.endsWith('/') ||
+                     currentPath.includes('index.html');
+  
+  if (isHomePage) {
+    currentPage = 'index.html';
+    currentPageClean = 'index';
+  } else {
+    // Extract page name from path
+    const pathParts = currentPath.split('/');
+    const pathPage = pathParts[pathParts.length - 1] || 'index.html';
     
-    // Check if this is the home link
-    const isHomeLink = href.includes("index.html") || href === "/" || href.endsWith('/');
-    
-    // If we're on the homepage and this is the home link, mark it active
-    if (isHomePage && isHomeLink) {
-      link.classList.add("active");
+    // Handle cases where path doesn't end with .html (clean URLs from .htaccess)
+    if (!pathPage.includes('.html')) {
+      currentPageClean = pathPage;
+      currentPage = pathPage + '.html';
+    } else {
+      currentPage = pathPage;
+      currentPageClean = pathPage.replace('.html', '');
     }
-    // For other pages, use the standard matching logic
-    else if (href === filename || (href !== 'index.html' && filename.includes(href.split('.')[0]))) {
-      link.classList.add("active");
+    
+    // Double-check if it matches any of our known pages
+    const knownPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
+    const matchedPage = knownPages.find(page => currentPath.includes(page));
+    if (matchedPage) {
+      currentPageClean = matchedPage;
+      currentPage = matchedPage + '.html';
+    }
+  }
+  
+  console.log('Detected current page:', currentPage);
+  console.log('Detected current page clean:', currentPageClean);
+  
+  // Clear all active states first
+  const allNavLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+  allNavLinks.forEach(link => {
+    link.classList.remove('active');
+  });
+  
+  // Set active states for desktop nav links
+  const navLinks = document.querySelectorAll('.nav-link');
+  navLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    
+    const linkPage = href.split('/').pop() || 'index.html';
+    const linkPageClean = linkPage.replace('.html', '');
+    
+    console.log('Checking link:', href, 'Link page:', linkPage, 'Link page clean:', linkPageClean);
+    
+    // Enhanced match logic to handle both clean URLs and .html URLs
+    let isMatch = false;
+    
+    // Check for home page matches
+    if ((currentPage === 'index.html' || currentPageClean === 'index') && 
+        (linkPage === 'index.html' || href.includes('index.html'))) {
+      isMatch = true;
+    }
+    // Check for exact matches (with .html)
+    else if (currentPage !== 'index.html' && linkPage === currentPage) {
+      isMatch = true;
+    }
+    // Check for clean URL matches (without .html)
+    else if (currentPageClean !== 'index' && linkPageClean === currentPageClean) {
+      isMatch = true;
+    }
+    // Check if current clean page matches link clean page
+    else if (currentPageClean && linkPageClean && currentPageClean === linkPageClean) {
+      isMatch = true;
+    }
+    
+    if (isMatch) {
+      link.classList.add('active');
+      console.log('Set active for desktop link:', href);
+    }
+  });
+  
+  // Set active states for mobile nav links
+  const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+  mobileNavLinks.forEach(link => {
+    const href = link.getAttribute('href');
+    if (!href) return;
+    
+    const linkPage = href.split('/').pop() || 'index.html';
+    const linkPageClean = linkPage.replace('.html', '');
+    
+    // Enhanced match logic to handle both clean URLs and .html URLs
+    let isMatch = false;
+    
+    // Check for home page matches
+    if ((currentPage === 'index.html' || currentPageClean === 'index') && 
+        (linkPage === 'index.html' || href.includes('index.html'))) {
+      isMatch = true;
+    }
+    // Check for exact matches (with .html)
+    else if (currentPage !== 'index.html' && linkPage === currentPage) {
+      isMatch = true;
+    }
+    // Check for clean URL matches (without .html)
+    else if (currentPageClean !== 'index' && linkPageClean === currentPageClean) {
+      isMatch = true;
+    }
+    // Check if current clean page matches link clean page
+    else if (currentPageClean && linkPageClean && currentPageClean === linkPageClean) {
+      isMatch = true;
+    }
+    
+    if (isMatch) {
+      link.classList.add('active');
+      console.log('Set active for mobile link:', href);
     }
   });
 }
+
+// Make the function globally available
+window.setActiveNavigation = setActiveNavigation;
+
+// Update navigation when the page changes (for SPAs or hash changes)
+window.addEventListener('popstate', function() {
+  setTimeout(() => {
+    setActiveNavigation();
+  }, 100);
+});
+
+// Also update when hash changes
+window.addEventListener('hashchange', function() {
+  setTimeout(() => {
+    setActiveNavigation();
+  }, 100);
+});
+
+// Also run on window load as a fallback
+window.addEventListener('load', function() {
+  setTimeout(() => {
+    console.log('Window loaded, ensuring navigation is set...');
+    setActiveNavigation();
+  }, 500);
+});
+
+// Additional fallback that runs periodically until navigation is properly set
+let navigationCheckAttempts = 0;
+const maxNavigationCheckAttempts = 10;
+
+function ensureNavigationIsSet() {
+  navigationCheckAttempts++;
+  
+  const activeLinks = document.querySelectorAll('.nav-link.active, .mobile-nav-link.active');
+  
+  if (activeLinks.length === 0 && navigationCheckAttempts < maxNavigationCheckAttempts) {
+    console.log(`Navigation check attempt ${navigationCheckAttempts}: No active links found, retrying...`);
+    setActiveNavigation();
+    setTimeout(ensureNavigationIsSet, 1000);
+  } else if (activeLinks.length > 0) {
+    console.log(`Navigation successfully set on attempt ${navigationCheckAttempts}`);
+  } else {
+    console.log(`Navigation check stopped after ${maxNavigationCheckAttempts} attempts`);
+  }
+}
+
+// Start the navigation check after DOM is ready
+setTimeout(ensureNavigationIsSet, 2000);
 
 // Initialize scroll animations using Intersection Observer API
 function initScrollAnimations() {

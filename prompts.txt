@@ -1,16 +1,10 @@
-
----------------------------
-
-i have to finally upload this to the hostingers hositng 
-
-so keep the name accordingly, alos create the .htaccess file for me which removes the .html from the url 
-
---------------------------
-
 based on the website that we now have, modify the footer.html. Keep only those links in the footer which are important and necessary to be present in the website.
 also if you want to detlete some unecessary pages form teh footer which were initially there, tehn you can.
 The desing of the footer lookks good, no need to change that, only modify the content of hte footer 
 
 --------------------------
 
-now create .htaccess file for the same so that url of the pages don't have src in them 
+when i open the index.html page of the website it opens like this with this url https://aback.ai/index
+
+update the .htaccess to make the url of the index.html page as aback.ai and nothing else
+fix this thing
