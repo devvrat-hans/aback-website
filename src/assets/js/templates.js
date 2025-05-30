@@ -5,8 +5,8 @@ document.addEventListener("DOMContentLoaded", function () {
   
   // Determine if we are at root level or in a subdirectory
   const isRootLevel = window.location.pathname === '/' || 
-                     window.location.pathname.endsWith('index.html') || 
-                     window.location.pathname === '/index.html';
+                     window.location.pathname.endsWith('index') || 
+                     window.location.pathname === '/index';
   
   // Check if we're in local development with pages subdirectory
   const isLocalDev = window.location.hostname === 'localhost' || 
@@ -39,24 +39,24 @@ document.addEventListener("DOMContentLoaded", function () {
   
   if (isProduction || isCleanURL) {
     // Production environment with clean URLs (aback.ai/services, etc.)
-    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
-    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
-    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+    navbarPath = "/src/templates/shared/navbar";
+    footerPath = "/src/templates/shared/footer";
+    chatbotPath = "/src/templates/shared/chatbot";
   } else if (isLocalDev && isInPagesDir) {
     // Local development with src/pages/ directory structure
-    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
-    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
-    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+    navbarPath = "/src/templates/shared/navbar";
+    footerPath = "/src/templates/shared/footer";
+    chatbotPath = "/src/templates/shared/chatbot";
   } else if (isLocalDev && isRootLevel) {
     // Local development at root level
-    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
-    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
-    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+    navbarPath = "/src/templates/shared/navbar";
+    footerPath = "/src/templates/shared/footer";
+    chatbotPath = "/src/templates/shared/chatbot";
   } else {
     // Fallback - use absolute paths
-    navbarPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/navbar.html";
-    footerPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/footer.html";
-    chatbotPath = "/Users/devvrathans/aback.ai/aback-website/src/templates/shared/chatbot.html";
+    navbarPath = "/src/templates/shared/navbar";
+    footerPath = "/src/templates/shared/footer";
+    chatbotPath = "/src/templates/shared/chatbot";
   }
   
   console.log("Using navbar path:", navbarPath);
@@ -151,8 +151,8 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => {
           console.log("Loading chatbot scripts...");
           // Use absolute paths for all environments
-          const chatbotScriptPath = '/Users/devvrathans/aback.ai/aback-website/src/assets/js/chatbot.js';
-          const configScriptPath = '/Users/devvrathans/aback.ai/aback-website/src/assets/js/web-config.js';
+          const chatbotScriptPath = '/src/assets/js/chatbot.js';
+          const configScriptPath = '/src/assets/js/web-config.js';
         
         // Try to load config first, but don't block chatbot if it fails
         loadScript(configScriptPath, (configError) => {
@@ -293,17 +293,17 @@ function setActiveNavLink() {
       let hrefPageName;
       
       // Extract page name from href
-      if (href === '/' || href.includes('index.html')) {
+      if (href === '/' || href.includes('index')) {
         hrefPageName = 'home';
       } else if (href.includes('/src/pages/')) {
-        // Local development structure: /src/pages/services.html -> services
-        hrefPageName = href.split('/').pop().replace('.html', '');
+        // Local development structure: /src/pages/services -> services
+        hrefPageName = href.split('/').pop().replace('', '');
       } else {
         // Clean URL structure: /services -> services or absolute paths
-        hrefPageName = href.replace(/^\//, '').replace('.html', '') || 'home';
+        hrefPageName = href.replace(/^\//, '').replace('', '') || 'home';
         // Handle absolute paths
         if (hrefPageName.includes('/')) {
-          hrefPageName = hrefPageName.split('/').pop().replace('.html', '');
+          hrefPageName = hrefPageName.split('/').pop().replace('', '');
         }
       }
       
@@ -338,17 +338,17 @@ function setActiveNavLink() {
       let hrefPageName;
       
       // Extract page name from href
-      if (href === '/' || href.includes('index.html')) {
+      if (href === '/' || href.includes('index')) {
         hrefPageName = 'home';
       } else if (href.includes('/src/pages/')) {
-        // Local development structure: /src/pages/services.html -> services
-        hrefPageName = href.split('/').pop().replace('.html', '');
+        // Local development structure: /src/pages/services -> services
+        hrefPageName = href.split('/').pop().replace('', '');
       } else {
         // Clean URL structure: /services -> services or absolute paths
-        hrefPageName = href.replace(/^\//, '').replace('.html', '') || 'home';
+        hrefPageName = href.replace(/^\//, '').replace('', '') || 'home';
         // Handle absolute paths
         if (hrefPageName.includes('/')) {
-          hrefPageName = hrefPageName.split('/').pop().replace('.html', '');
+          hrefPageName = hrefPageName.split('/').pop().replace('', '');
         }
       }
       
