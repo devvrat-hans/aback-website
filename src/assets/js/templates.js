@@ -39,24 +39,24 @@ document.addEventListener("DOMContentLoaded", function () {
   
   if (isProduction || isCleanURL) {
     // Production environment with clean URLs (aback.ai/services, etc.)
-    navbarPath = "/src/templates/shared/navbar";
-    footerPath = "/src/templates/shared/footer";
-    chatbotPath = "/src/templates/shared/chatbot";
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
   } else if (isLocalDev && isInPagesDir) {
     // Local development with src/pages/ directory structure
-    navbarPath = "/src/templates/shared/navbar";
-    footerPath = "/src/templates/shared/footer";
-    chatbotPath = "/src/templates/shared/chatbot";
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
   } else if (isLocalDev && isRootLevel) {
     // Local development at root level
-    navbarPath = "/src/templates/shared/navbar";
-    footerPath = "/src/templates/shared/footer";
-    chatbotPath = "/src/templates/shared/chatbot";
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
   } else {
     // Fallback - use absolute paths
-    navbarPath = "/src/templates/shared/navbar";
-    footerPath = "/src/templates/shared/footer";
-    chatbotPath = "/src/templates/shared/chatbot";
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
   }
   
   console.log("Using navbar path:", navbarPath);
