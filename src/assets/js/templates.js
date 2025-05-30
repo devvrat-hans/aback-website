@@ -1,18 +1,46 @@
 document.addEventListener("DOMContentLoaded", function () {
   console.log("Loading templates...");
   console.log("Current pathname:", window.location.pathname);
+  console.log("Current location:", window.location.href);
   
-  // Determine if we are at root level (index.html) or in a subdirectory (pages)
+  // Determine if we are at root level or in a subdirectory
   const isRootLevel = window.location.pathname === '/' || 
                      window.location.pathname.endsWith('index.html') || 
-                     window.location.pathname.endsWith('/');
+                     window.location.pathname === '/index.html';
+  
+  // Check if we're in a pages subdirectory (for traditional HTML routing)
+  const isInPagesDir = window.location.pathname.includes('/src/pages/') || 
+                      window.location.pathname.includes('/pages/');
+  
+  // For clean URLs, check if we're accessing a page through clean URL routing
+  const cleanURLPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
+  const currentPage = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
+  const isCleanURL = cleanURLPages.includes(currentPage);
   
   console.log("Is root level:", isRootLevel);
+  console.log("Is in pages directory:", isInPagesDir);
+  console.log("Is clean URL:", isCleanURL);
+  console.log("Current page:", currentPage);
   
   // Set the correct paths based on current location
-  const navbarPath = isRootLevel ? "/src/templates/shared/navbar.html" : "../templates/shared/navbar.html";
-  const footerPath = isRootLevel ? "/src/templates/shared/footer.html" : "../templates/shared/footer.html";
-  const chatbotPath = isRootLevel ? "/src/templates/shared/chatbot.html" : "../templates/shared/chatbot.html";
+  let navbarPath, footerPath, chatbotPath;
+  
+  if (isRootLevel && !isCleanURL && !isInPagesDir) {
+    // We're at the root index.html
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
+  } else if (isInPagesDir) {
+    // We're accessing files through the src/pages/ directory structure
+    navbarPath = "../templates/shared/navbar.html";
+    footerPath = "../templates/shared/footer.html";
+    chatbotPath = "../templates/shared/chatbot.html";
+  } else {
+    // Clean URLs or other cases - use absolute paths
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
+  }
   
   console.log("Using navbar path:", navbarPath);
   console.log("Using footer path:", footerPath);
@@ -107,8 +135,9 @@ document.addEventListener("DOMContentLoaded", function () {
       // Load chatbot script after HTML is inserted with a small delay
       setTimeout(() => {
         console.log("Loading chatbot scripts...");
-        const chatbotScriptPath = isRootLevel ? '/src/assets/js/chatbot.js' : '../assets/js/chatbot.js';
-        const configScriptPath = isRootLevel ? '/src/assets/js/web-config.js' : '../assets/js/web-config.js';
+        // Always use absolute paths for clean URLs
+        const chatbotScriptPath = '/src/assets/js/chatbot.js';
+        const configScriptPath = '/src/assets/js/web-config.js';
         
         // Try to load config first, but don't block chatbot if it fails
         loadScript(configScriptPath, (configError) => {
