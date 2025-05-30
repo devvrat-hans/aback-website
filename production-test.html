@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Production Test Page</title>
+    <link rel="stylesheet" href="/src/assets/css/index.css">
+    <link rel="stylesheet" href="/src/assets/css/navbar.css">
+    <link rel="stylesheet" href="/src/assets/css/footer.css">
+</head>
+<body>
+    <div id="navbar-container"></div>
+    
+    <div style="padding: 100px 20px; text-align: center;">
+        <h1>Production Test Page</h1>
+        <p>This page simulates a production environment clean URL page.</p>
+        <p>The current URL is: <span id="current-url"></span></p>
+        <p>The templates should load from absolute paths.</p>
+    </div>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        document.getElementById('current-url').textContent = window.location.href;
+    </script>
+    
+    <script src="/src/assets/js/templates.js"></script>
+    <script src="/src/assets/js/main.js"></script>
+</body>
+</html>

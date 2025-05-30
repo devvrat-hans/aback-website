@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Template Loading</title>
+    <link rel="stylesheet" href="/src/assets/css/index.css">
+    <link rel="stylesheet" href="/src/assets/css/navbar.css">
+    <link rel="stylesheet" href="/src/assets/css/footer.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        .debug-section {
+            margin: 100px 20px;
+            padding: 20px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .warning { background: #fff3cd; color: #856404; }
+    </style>
+</head>
+<body>
+    <div id="navbar-container"></div>
+    
+    <div class="debug-section">
+        <h1>Template Loading Debug</h1>
+        <div id="navbar-status" class="status warning">Navbar: Loading...</div>
+        <div id="footer-status" class="status warning">Footer: Loading...</div>
+        <div id="console-output"></div>
+    </div>
+    
+    <div id="footer-container"></div>
+    
+    <script>
+        // Override console.log to capture output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const consoleOutput = document.getElementById('console-output');
+        
+        function addToConsole(message, type = 'log') {
+            const div = document.createElement('div');
+            div.className = `status ${type === 'error' ? 'error' : 'warning'}`;
+            div.textContent = `[${type.toUpperCase()}] ${message}`;
+            consoleOutput.appendChild(div);
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToConsole(args.join(' '), 'log');
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToConsole(args.join(' '), 'error');
+        };
+        
+        // Check template loading status
+        function checkTemplateStatus() {
+            const navbar = document.getElementById('navbar-container');
+            const footer = document.getElementById('footer-container');
+            
+            const navbarStatus = document.getElementById('navbar-status');
+            const footerStatus = document.getElementById('footer-status');
+            
+            if (navbar && navbar.children.length > 0) {
+                navbarStatus.textContent = 'Navbar: ✅ Loaded successfully';
+                navbarStatus.className = 'status success';
+            } else {
+                navbarStatus.textContent = 'Navbar: ❌ Failed to load';
+                navbarStatus.className = 'status error';
+            }
+            
+            if (footer && footer.children.length > 0) {
+                footerStatus.textContent = 'Footer: ✅ Loaded successfully';
+                footerStatus.className = 'status success';
+            } else {
+                footerStatus.textContent = 'Footer: ❌ Failed to load';
+                footerStatus.className = 'status error';
+            }
+        }
+        
+        // Check every 500ms for 10 seconds
+        let checks = 0;
+        const maxChecks = 20;
+        const statusInterval = setInterval(() => {
+            checkTemplateStatus();
+            checks++;
+            if (checks >= maxChecks) {
+                clearInterval(statusInterval);
+            }
+        }, 500);
+    </script>
+    
+    <!-- Load templates last -->
+    <script src="/src/assets/js/templates.js"></script>
+    <script src="/src/assets/js/main.js"></script>
+</body>
+</html>

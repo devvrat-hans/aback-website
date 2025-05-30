@@ -12,7 +12,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/src/
 RewriteCond %{REQUEST_URI} !^/api/
-RewriteRule ^(services|whyus|about|careers|contact)/?$ /src/pages/$1.html [L]
+RewriteRule ^(services|whyus|about|careers|contact|privacy|terms|ethics-charter)/?$ /src/pages/$1.html [L]
 
 # Remove .html extension from URLs in pages directory
 RewriteCond %{REQUEST_FILENAME} !-d

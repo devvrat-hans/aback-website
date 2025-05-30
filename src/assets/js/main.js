@@ -72,7 +72,7 @@ function setActiveNavigation() {
     }
     
     // Double-check if it matches any of our known pages
-    const knownPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
+    const knownPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'ethics-charter'];
     const matchedPage = knownPages.find(page => currentPath.includes(page));
     if (matchedPage) {
       currentPageClean = matchedPage;
@@ -95,8 +95,22 @@ function setActiveNavigation() {
     const href = link.getAttribute('href');
     if (!href) return;
     
-    const linkPage = href.split('/').pop() || 'index.html';
-    const linkPageClean = linkPage.replace('.html', '');
+    // Extract page name from href - handle both clean URLs and .html URLs
+    let linkPageClean = '';
+    let linkPage = '';
+    
+    if (href === '/' || href.includes('index')) {
+      linkPageClean = 'index';
+      linkPage = 'index.html';
+    } else if (href.startsWith('/') && !href.includes('.')) {
+      // Clean URL like /services
+      linkPageClean = href.replace('/', '');
+      linkPage = linkPageClean + '.html';
+    } else {
+      // Traditional URL with .html or full path
+      linkPage = href.split('/').pop() || 'index.html';
+      linkPageClean = linkPage.replace('.html', '');
+    }
     
     console.log('Checking link:', href, 'Link page:', linkPage, 'Link page clean:', linkPageClean);
     
@@ -105,7 +119,7 @@ function setActiveNavigation() {
     
     // Check for home page matches
     if ((currentPage === 'index.html' || currentPageClean === 'index') && 
-        (linkPage === 'index.html' || href.includes('index.html'))) {
+        (linkPageClean === 'index' || linkPage === 'index.html')) {
       isMatch = true;
     }
     // Check for exact matches (with .html)

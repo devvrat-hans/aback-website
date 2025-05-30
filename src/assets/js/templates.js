@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
                       window.location.pathname.includes('/pages/');
   
   // For production clean URLs (aback.ai domain structure)
-  const cleanURLPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'security', 'ethics-charter'];
+  const cleanURLPages = ['services', 'whyus', 'about', 'careers', 'contact', 'privacy', 'terms', 'ethics-charter'];
   const currentPage = window.location.pathname.replace(/^\//, '').replace(/\/$/, '');
   const isCleanURL = cleanURLPages.includes(currentPage);
   
@@ -34,30 +34,13 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("Is production:", isProduction);
   console.log("Current page:", currentPage);
   
-  // Set the correct paths based on current location
-  let navbarPath, footerPath, chatbotPath;
+  // Force template loading - always try to load regardless of environment detection
+  console.log("Force loading templates regardless of environment...");
   
-  if (isProduction || isCleanURL) {
-    // Production environment with clean URLs (aback.ai/services, etc.)
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  } else if (isLocalDev && isInPagesDir) {
-    // Local development with src/pages/ directory structure
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  } else if (isLocalDev && isRootLevel) {
-    // Local development at root level
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  } else {
-    // Fallback - use absolute paths
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  }
+  // Set primary paths - prioritize absolute paths for production  
+  let navbarPath = "/src/templates/shared/navbar.html";
+  let footerPath = "/src/templates/shared/footer.html";
+  let chatbotPath = "/src/templates/shared/chatbot.html";
   
   console.log("Using navbar path:", navbarPath);
   console.log("Using footer path:", footerPath);
@@ -74,118 +57,422 @@ document.addEventListener("DOMContentLoaded", function () {
   // Only load navbar if container is empty (not already populated)
   if (navContainer && navContainer.children.length === 0) {
     console.log("Starting navbar fetch...");
-    fetch(navbarPath)
-      .then(response => {
-        console.log("Navbar response status:", response.status);
-        if (!response.ok) {
-          throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
-        }
-        return response.text();
-      })
-      .then(html => {
-        console.log("Navbar template loaded successfully, length:", html.length);
-        navContainer.innerHTML = html;
-        console.log("Navbar HTML inserted into container");
-        // Initialize navbar functionality after it's loaded
-        setTimeout(() => {
-          initNavbar();
-          // Set active navigation using the robust function from main.js
-          if (typeof setActiveNavigation === 'function') {
-            setActiveNavigation();
+    
+    // Try to load navbar, with fallback to multiple paths if needed
+    function loadNavbar(path, isFirstAttempt = true) {
+      console.log("Attempting to load navbar from:", path);
+      fetch(path)
+        .then(response => {
+          console.log("Navbar response status:", response.status, "for path:", path);
+          if (!response.ok) {
+            throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
           }
-        }, 100);
-      })
-      .catch(error => {
-        console.error("Error loading navbar:", error);
-      });
+          return response.text();
+        })
+        .then(html => {
+          console.log("Navbar template loaded successfully, length:", html.length);
+          navContainer.innerHTML = html;
+          console.log("Navbar HTML inserted into container");
+          // Initialize navbar functionality after it's loaded
+          setTimeout(() => {
+            initNavbar();
+            // Set active navigation using the robust function from main.js
+            if (typeof setActiveNavigation === 'function') {
+              setActiveNavigation();
+            }
+          }, 100);
+        })
+        .catch(error => {
+          console.error("Error loading navbar with path:", path, error);
+          // Try alternative paths systematically
+          if (isFirstAttempt) {
+            console.log("Trying alternative paths for navbar...");
+            // Try multiple fallback paths in order of likelihood
+            const fallbackPaths = [
+              "/src/templates/shared/navbar.html", // Absolute path (most likely to work)
+              "../templates/shared/navbar.html",  // Relative from pages directory
+              "../../templates/shared/navbar.html" // Relative from deeper directories
+            ];
+            
+            let currentFallback = 0;
+            function tryNextFallback() {
+              if (currentFallback < fallbackPaths.length) {
+                const fallbackPath = fallbackPaths[currentFallback];
+                currentFallback++;
+                console.log("Trying fallback path:", fallbackPath);
+                
+                fetch(fallbackPath)
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error("Fallback failed: " + response.status);
+                    }
+                    return response.text();
+                  })
+                  .then(html => {
+                    console.log("Navbar loaded successfully with fallback path:", fallbackPath);
+                    navContainer.innerHTML = html;
+                    setTimeout(() => {
+                      initNavbar();
+                      if (typeof setActiveNavigation === 'function') {
+                        setActiveNavigation();
+                      }
+                    }, 100);
+                  })
+                  .catch(error => {
+                    console.error("Fallback path failed:", fallbackPath, error);
+                    tryNextFallback();
+                  });
+              } else {
+                console.error("All navbar fallback paths failed");
+              }
+            }
+            tryNextFallback();
+          }
+        });
+    }
+    
+    loadNavbar(navbarPath);
   } else if (navContainer) {
-    console.log("Navbar already exists, initializing...");
-    // Initialize navbar functionality for existing content
-    setTimeout(() => {
-      initNavbar();
-      // Set active navigation using the robust function from main.js
-      if (typeof setActiveNavigation === 'function') {
-        setActiveNavigation();
+    console.log("Navbar container found but may be empty, attempting to load...");
+    // If navbar container exists but is empty, try to load it anyway
+    if (navContainer.children.length === 0) {
+      console.log("Navbar container is empty, loading navbar...");
+      function loadNavbar(path, isFirstAttempt = true) {
+        console.log("Attempting to load navbar from:", path);
+        fetch(path)
+          .then(response => {
+            console.log("Navbar response status:", response.status, "for path:", path);
+            if (!response.ok) {
+              throw new Error("Failed to load navbar: " + response.status + " " + response.statusText);
+            }
+            return response.text();
+          })
+          .then(html => {
+            console.log("Navbar template loaded successfully, length:", html.length);
+            navContainer.innerHTML = html;
+            console.log("Navbar HTML inserted into container");
+            // Initialize navbar functionality after it's loaded
+            setTimeout(() => {
+              initNavbar();
+              // Set active navigation using the robust function from main.js
+              if (typeof setActiveNavigation === 'function') {
+                setActiveNavigation();
+              }
+            }, 100);
+          })
+          .catch(error => {
+            console.error("Error loading navbar with path:", path, error);
+            // Try alternative paths systematically
+            if (isFirstAttempt) {
+              console.log("Trying alternative paths for navbar...");
+              // Try multiple fallback paths in order of likelihood  
+              const fallbackPaths = [
+                "/src/templates/shared/navbar.html", // Absolute path (most likely to work)
+                "../templates/shared/navbar.html",  // Relative from pages directory
+                "../../templates/shared/navbar.html" // Relative from deeper directories
+              ];
+              
+              let currentFallback = 0;
+              function tryNextFallback() {
+                if (currentFallback < fallbackPaths.length) {
+                  const fallbackPath = fallbackPaths[currentFallback];
+                  currentFallback++;
+                  console.log("Trying fallback path:", fallbackPath);
+                  
+                  fetch(fallbackPath)
+                    .then(response => {
+                      if (!response.ok) {
+                        throw new Error("Fallback failed: " + response.status);
+                      }
+                      return response.text();
+                    })
+                    .then(html => {
+                      console.log("Navbar loaded successfully with fallback path:", fallbackPath);
+                      navContainer.innerHTML = html;
+                      setTimeout(() => {
+                        initNavbar();
+                        if (typeof setActiveNavigation === 'function') {
+                          setActiveNavigation();
+                        }
+                      }, 100);
+                    })
+                    .catch(error => {
+                      console.error("Fallback path failed:", fallbackPath, error);
+                      tryNextFallback();
+                    });
+                } else {
+                  console.error("All navbar fallback paths failed");
+                }
+              }
+              tryNextFallback();
+            }
+          });
       }
-    }, 100);
+      loadNavbar(navbarPath);
+    } else {
+      console.log("Navbar already exists, initializing...");
+      // Initialize navbar functionality for existing content
+      setTimeout(() => {
+        initNavbar();
+        // Set active navigation using the robust function from main.js
+        if (typeof setActiveNavigation === 'function') {
+          setActiveNavigation();
+        }
+      }, 100);
+    }
+  } else {
+    console.log("No navbar container found in DOM");
   }
 
   // Only load footer if container is empty (not already populated)
   if (footerContainer && footerContainer.children.length === 0) {
     console.log("Starting footer fetch...");
-    fetch(footerPath)
+    
+    // Try to load footer, with fallback to multiple paths if needed
+    function loadFooter(path, isFirstAttempt = true) {
+      console.log("Attempting to load footer from:", path);
+      fetch(path)
+        .then(response => {
+          console.log("Footer response status:", response.status, "for path:", path);
+          if (!response.ok) {
+            throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
+          }
+          return response.text();
+        })
+        .then(html => {
+          console.log("Footer template loaded successfully, length:", html.length);
+          footerContainer.innerHTML = html;
+          console.log("Footer HTML inserted into container");
+        })
+        .catch(error => {
+          console.error("Error loading footer with path:", path, error);
+          // Try alternative paths systematically
+          if (isFirstAttempt) {
+            console.log("Trying alternative paths for footer...");
+            // Try multiple fallback paths
+            const fallbackPaths = [
+              "/src/templates/shared/footer.html", // Absolute path (most likely to work)                "../templates/shared/footer.html",  // Relative from pages directory
+                "../../templates/shared/footer.html" // Relative from deeper directories
+              ];
+            
+            let currentFallback = 0;
+            function tryNextFallback() {
+              if (currentFallback < fallbackPaths.length) {
+                const fallbackPath = fallbackPaths[currentFallback];
+                currentFallback++;
+                console.log("Trying footer fallback path:", fallbackPath);
+                
+                fetch(fallbackPath)
+                  .then(response => {
+                    if (!response.ok) {
+                      throw new Error("Footer fallback failed: " + response.status);
+                    }
+                    return response.text();
+                  })
+                  .then(html => {
+                    console.log("Footer loaded successfully with fallback path:", fallbackPath);
+                    footerContainer.innerHTML = html;
+                  })
+                  .catch(error => {
+                    console.error("Footer fallback path failed:", fallbackPath, error);
+                    tryNextFallback();
+                  });
+              } else {
+                console.error("All footer fallback paths failed");
+              }
+            }
+            tryNextFallback();
+          }
+        });
+    }
+    
+    loadFooter(footerPath);
+  } else if (footerContainer) {
+    console.log("Footer container found but may be empty, attempting to load...");
+    // If footer container exists but is empty, try to load it anyway
+    if (footerContainer.children.length === 0) {
+      console.log("Footer container is empty, loading footer...");
+      function loadFooter(path, isFirstAttempt = true) {
+        console.log("Attempting to load footer from:", path);
+        fetch(path)
+          .then(response => {
+            console.log("Footer response status:", response.status, "for path:", path);
+            if (!response.ok) {
+              throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
+            }
+            return response.text();
+          })
+          .then(html => {
+            console.log("Footer template loaded successfully, length:", html.length);
+            footerContainer.innerHTML = html;
+            console.log("Footer HTML inserted into container");
+          })
+          .catch(error => {
+            console.error("Error loading footer with path:", path, error);
+            // Try alternative paths systematically
+            if (isFirstAttempt) {
+              console.log("Trying alternative paths for footer...");
+              // Try multiple fallback paths
+              const fallbackPaths = [
+                "/src/templates/shared/footer.html", // Absolute path (most likely to work)
+                "../templates/shared/footer.html",  // Relative from pages directory
+                "../../templates/shared/footer.html" // Relative from deeper directories
+              ];
+              
+              let currentFallback = 0;
+              function tryNextFallback() {
+                if (currentFallback < fallbackPaths.length) {
+                  const fallbackPath = fallbackPaths[currentFallback];
+                  currentFallback++;
+                  console.log("Trying footer fallback path:", fallbackPath);
+                  
+                  fetch(fallbackPath)
+                    .then(response => {
+                      if (!response.ok) {
+                        throw new Error("Footer fallback failed: " + response.status);
+                      }
+                      return response.text();
+                    })
+                    .then(html => {
+                      console.log("Footer loaded successfully with fallback path:", fallbackPath);
+                      footerContainer.innerHTML = html;
+                    })
+                    .catch(error => {
+                      console.error("Footer fallback path failed:", fallbackPath, error);
+                      tryNextFallback();
+                    });
+                } else {
+                  console.error("All footer fallback paths failed");
+                }
+              }
+              tryNextFallback();
+            }
+          });
+      }
+      loadFooter(footerPath);
+    } else {
+      console.log("Footer already exists, skipping load");
+    }
+  } else {
+    console.log("No footer container found in DOM");
+  }
+    
+  // Load chatbot
+  function loadChatbot(path, isFirstAttempt = true) {
+    fetch(path)
       .then(response => {
-        console.log("Footer response status:", response.status);
         if (!response.ok) {
-          throw new Error("Failed to load footer: " + response.status + " " + response.statusText);
+          throw new Error("Failed to load chatbot: " + response.status + " " + response.statusText);
         }
         return response.text();
       })
       .then(html => {
-        console.log("Footer template loaded successfully, length:", html.length);
-        footerContainer.innerHTML = html;
-        console.log("Footer HTML inserted into container");
-      })
-      .catch(error => {
-        console.error("Error loading footer:", error);
-      });
-  } else if (footerContainer) {
-    console.log("Footer already exists, skipping load");
-  }
-    
-  // Load chatbot
-  fetch(chatbotPath)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error("Failed to load chatbot: " + response.status + " " + response.statusText);
-      }
-      return response.text();
-    })
-    .then(html => {
-      console.log("Chatbot template loaded successfully");
-      const chatbotContainer = document.createElement('div');
-      chatbotContainer.id = 'chatbot-container';
-      chatbotContainer.innerHTML = html;
-      document.body.appendChild(chatbotContainer);
-      console.log("Chatbot HTML inserted into DOM");        // Load chatbot script after HTML is inserted with a small delay
+        console.log("Chatbot template loaded successfully");
+        const chatbotContainer = document.createElement('div');
+        chatbotContainer.id = 'chatbot-container';
+        chatbotContainer.innerHTML = html;
+        document.body.appendChild(chatbotContainer);
+        console.log("Chatbot HTML inserted into DOM");
+        
+        // Load chatbot script after HTML is inserted with a small delay
         setTimeout(() => {
           console.log("Loading chatbot scripts...");
           // Use absolute paths for all environments
           const chatbotScriptPath = '/src/assets/js/chatbot.js';
           const configScriptPath = '/src/assets/js/web-config.js';
         
-        // Try to load config first, but don't block chatbot if it fails
-        loadScript(configScriptPath, (configError) => {
-          if (configError) {
-            console.log("Config script failed to load, proceeding with chatbot script anyway");
-          } else {
-            console.log("Config script loaded successfully");
-          }
-          
-          // Load chatbot script regardless of config script status
-          loadScript(chatbotScriptPath, (chatbotError) => {
-            if (chatbotError) {
-              console.error("Failed to load chatbot script:", chatbotError);
-              return;
+          // Try to load config first, but don't block chatbot if it fails
+          loadScript(configScriptPath, (configError) => {
+            if (configError) {
+              console.log("Config script failed to load, proceeding with chatbot script anyway");
+            } else {
+              console.log("Config script loaded successfully");
             }
             
-            console.log("Chatbot script loaded, initializing...");
-            // Force initialization if the chatbot hasn't initialized yet
-            setTimeout(() => {
-              if (typeof window.initializeChatbot === 'function') {
-                console.log("Calling initializeChatbot function");
-                window.initializeChatbot();
-              } else {
-                console.error("initializeChatbot function not found");
+            // Load chatbot script regardless of config script status
+            loadScript(chatbotScriptPath, (chatbotError) => {
+              if (chatbotError) {
+                console.error("Failed to load chatbot script:", chatbotError);
+                return;
               }
-            }, 100);
+              
+              console.log("Chatbot script loaded, initializing...");
+              // Force initialization if the chatbot hasn't initialized yet
+              setTimeout(() => {
+                if (typeof window.initializeChatbot === 'function') {
+                  console.log("Calling initializeChatbot function");
+                  window.initializeChatbot();
+                } else {
+                  console.error("initializeChatbot function not found");
+                }
+              }, 100);
+            });
           });
-        });
-      }, 100);
-    })
-    .catch(error => {
-      console.error("Error loading chatbot:", error);
-    });
+        }, 100);
+      })
+      .catch(error => {
+        console.error("Error loading chatbot:", error);
+        // Try alternative paths for chatbot with same fallback logic
+        if (isFirstAttempt) {
+          console.log("Trying alternative paths for chatbot...");
+          const fallbackPaths = [
+            "/src/templates/shared/chatbot.html",
+            "../templates/shared/chatbot.html",
+            "../../templates/shared/chatbot.html"
+          ];
+          
+          let currentFallback = 0;
+          function tryNextChatbotFallback() {
+            if (currentFallback < fallbackPaths.length) {
+              const fallbackPath = fallbackPaths[currentFallback];
+              currentFallback++;
+              console.log("Trying chatbot fallback path:", fallbackPath);
+              
+              fetch(fallbackPath)
+                .then(response => {
+                  if (!response.ok) {
+                    throw new Error("Chatbot fallback failed: " + response.status);
+                  }
+                  return response.text();
+                })
+                .then(html => {
+                  console.log("Chatbot loaded successfully with fallback path:", fallbackPath);
+                  const chatbotContainer = document.createElement('div');
+                  chatbotContainer.id = 'chatbot-container';
+                  chatbotContainer.innerHTML = html;
+                  document.body.appendChild(chatbotContainer);
+                  
+                  setTimeout(() => {
+                    const chatbotScriptPath = '/src/assets/js/chatbot.js';
+                    const configScriptPath = '/src/assets/js/web-config.js';
+                    
+                    loadScript(configScriptPath, (configError) => {
+                      loadScript(chatbotScriptPath, (chatbotError) => {
+                        if (!chatbotError) {
+                          setTimeout(() => {
+                            if (typeof window.initializeChatbot === 'function') {
+                              window.initializeChatbot();
+                            }
+                          }, 100);
+                        }
+                      });
+                    });
+                  }, 100);
+                })
+                .catch(error => {
+                  console.error("Chatbot fallback path failed:", fallbackPath, error);
+                  tryNextChatbotFallback();
+                });
+            } else {
+              console.log("All chatbot fallback paths failed, continuing without chatbot");
+            }
+          }
+          tryNextChatbotFallback();
+        }
+      });
+  }
+  
+  loadChatbot(chatbotPath);
 });
 
 // Function to dynamically load scripts
@@ -267,8 +554,13 @@ function initNavbar() {
   
   // Show the navbar with animation
   setTimeout(() => {
-    navbar.style.opacity = '1';
-    navbar.style.transform = 'translateX(-50%) translateY(0)';
+    if (navbar) {
+      navbar.style.opacity = '1';
+      navbar.style.transform = 'translateX(-50%) translateY(0)';
+      navbar.style.visibility = 'visible';
+      navbar.style.display = 'block';
+      console.log("Navbar made visible");
+    }
   }, 100);
 }
 
