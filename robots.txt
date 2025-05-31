@@ -1,0 +1,27 @@
+User-agent: *
+Allow: /
+
+# Allow crawling of main pages
+Allow: /services
+Allow: /whyus
+Allow: /about
+Allow: /careers
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+Allow: /ethics-charter
+
+# Allow CSS, JS, and images
+Allow: /src/assets/css/
+Allow: /src/assets/js/
+Allow: /src/assets/images/
+
+# Disallow admin and API directories
+Disallow: /api/
+Disallow: /admin/
+Disallow: /src/templates/
+Disallow: /*.json$
+Disallow: /*.log$
+
+# Sitemap location
+Sitemap: https://aback.ai/sitemap.xml

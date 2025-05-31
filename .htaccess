@@ -1,10 +1,20 @@
 # Enable URL Rewriting
 RewriteEngine On
 
+# Force HTTPS (for production)
+RewriteCond %{HTTPS} off
+RewriteCond %{HTTP_HOST} ^(www\.)?aback\.ai$ [NC]
+RewriteRule ^(.*)$ https://aback.ai/$1 [R=301,L]
+
+# Force www removal (canonical URL)
+RewriteCond %{HTTP_HOST} ^www\.aback\.ai$ [NC]
+RewriteRule ^(.*)$ https://aback.ai/$1 [R=301,L]
+
 # Serve index.html for root domain
 RewriteRule ^$ index.html [L]
 
-# Redirect /index to root domain
+# Redirect /index, /index.html, and /index/ to root domain
+RewriteRule ^index\.html?/?$ /? [R=301,L]
 RewriteRule ^index/?$ /? [R=301,L]
 
 # Map clean URLs to pages directory (except for existing files/directories)
@@ -13,16 +23,6 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/src/
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteRule ^(services|whyus|about|careers|contact|privacy|terms|ethics-charter)/?$ /src/pages/$1.html [L]
-
-# Remove .html extension from URLs in pages directory
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^([^\.]+)$ $1.html [NC,L]
-
-# Remove .php extension from URLs  
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^([^\.]+)$ $1.php [NC,L]
 
 # Redirect direct access to src/pages/ URLs to clean URLs
 RewriteCond %{THE_REQUEST} \s/+src/pages/([^?\s]+)\.html[\s?] [NC]
@@ -33,14 +33,44 @@ RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
 RewriteCond %{REQUEST_URI} !^/src/
 RewriteRule ^ /%1? [R=301,L]
 
-# Redirect .php URLs to clean URLs (except for API files)
-RewriteCond %{THE_REQUEST} \s/+(.+?)\.php[\s?] [NC]
-RewriteCond %{REQUEST_URI} !^/api/
-RewriteRule ^ /%1? [R=301,L]
+# Remove trailing slashes from non-directory URLs
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.+)/$ /$1 [R=301,L]
 
-# Handle index files
-RewriteCond %{THE_REQUEST} \s/+(.+/)?index\.(html|php)[\s?] [NC]
-RewriteRule ^ /%1? [R=301,L]
+# Handle specific files that should be accessible
+RewriteRule ^(robots\.txt|sitemap\.xml|favicon\.ico)$ - [L]
+
+# Security headers for better SEO and security
+Header always set X-Content-Type-Options nosniff
+Header always set X-Frame-Options SAMEORIGIN
+Header always set X-XSS-Protection "1; mode=block"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Enable compression for better performance (helps SEO)
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Set cache headers for static assets (improves page speed - SEO factor)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/jpg "access plus 1 year"
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+</IfModule>
 
 # Security settings for API directory
 
@@ -73,11 +103,3 @@ RewriteRule ^ /%1? [R=301,L]
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
 </Files>
-
-# Security headers
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options DENY
-Header always set X-XSS-Protection "1; mode=block"
-
-# Disable server signature
-ServerSignature Off
