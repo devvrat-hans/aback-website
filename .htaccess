@@ -24,6 +24,13 @@ RewriteCond %{REQUEST_URI} !^/src/
 RewriteCond %{REQUEST_URI} !^/api/
 RewriteRule ^(services|whyus|about|careers|contact|blog|privacy|terms|ethics-charter)/?$ /src/pages/$1.html [L]
 
+# Map blog post URLs to pages directory
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/src/
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteRule ^blog-(.+)/?$ /src/pages/blog-$1.html [L]
+
 # Redirect direct access to src/pages/ URLs to clean URLs
 RewriteCond %{THE_REQUEST} \s/+src/pages/([^?\s]+)\.html[\s?] [NC]
 RewriteRule ^ /%1? [R=301,L]
