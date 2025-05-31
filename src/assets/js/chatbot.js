@@ -203,8 +203,13 @@ window.initializeChatbot = function() {
 
                 clearTimeout(timeoutId);
 
+                // Log response details for debugging
+                console.log('Response status:', response.status);
+                console.log('Response headers:', [...response.headers.entries()]);
+
                 if (!response.ok) {
                     const errorText = await response.text();
+                    console.error('API error response:', errorText);
                     let errorData;
                     
                     try {
@@ -220,12 +225,15 @@ window.initializeChatbot = function() {
                         throw new Error(errorData.error || `Server error: ${response.status}`);
                     } else if (response.status === 400) {
                         return "I'm sorry, I couldn't understand your message. Could you please rephrase it?";
+                    } else if (response.status === 404) {
+                        return "I'm sorry, the chat service is currently unavailable. Please try again later or contact our team at contact@aback.ai.";
                     }
                     
                     throw new Error(errorData.error || `API responded with status ${response.status}`);
                 }
 
                 const data = await response.json();
+                console.log('API response data:', data);
                 
                 if (data.success && data.response) {
                     console.log('API call successful');
