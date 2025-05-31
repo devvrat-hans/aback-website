@@ -322,26 +322,6 @@ function fixNavbarUrls() {
     // No changes needed
   }
 }
-    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
-    mobileLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (urlMap[href]) {
-        link.setAttribute('href', urlMap[href]);
-        console.log(`Updated mobile nav link: ${href} -> ${urlMap[href]}`);
-      }
-    });
-    
-    // Fix contact button
-    const contactButtons = document.querySelectorAll('.contact-button, .mobile-button');
-    contactButtons.forEach(button => {
-      const href = button.getAttribute('href');
-      if (href === '/contact') {
-        button.setAttribute('href', '/src/pages/contact.html');
-        console.log(`Updated contact button: ${href} -> /src/pages/contact.html`);
-      }
-    });
-  }
-}
 
 // Fix footer URLs based on environment
 function fixFooterUrls() {
