@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
-  // Highlight current section in TOC based on scroll position
+  // Highlight current section in TOC
   const highlightCurrentSection = () => {
     const sections = document.querySelectorAll('.privacy-section');
     const scrollPosition = window.scrollY;
@@ -55,7 +55,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // Update on scroll
   window.addEventListener('scroll', highlightCurrentSection);
   
-  // Initialize CTA animation with IntersectionObserver
+  // Add CSS for active link
+  const style = document.createElement('style');
+  style.textContent = `
+    .toc-list a.active {
+      color: var(--primary-color);
+      background: rgba(0, 102, 204, 0.05);
+      padding-left: 0.5rem;
+      font-weight: 500;
+      border-left: 3px solid var(--primary-color);
+    }
+  `;
+  document.head.appendChild(style);
+  
+  // Initialize CTA animation
   const observer = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
@@ -69,45 +82,4 @@ document.addEventListener('DOMContentLoaded', function() {
   if (ctaContent) {
     observer.observe(ctaContent);
   }
-  
-  // Handle direct links to sections (for when users arrive via a direct link to a section)
-  if (window.location.hash) {
-    const targetSection = document.querySelector(window.location.hash);
-    if (targetSection) {
-      setTimeout(() => {
-        window.scrollTo({
-          top: targetSection.offsetTop - 80,
-          behavior: 'smooth'
-        });
-        
-        // Highlight the correct TOC item
-        const activeLink = document.querySelector(`.toc-list a[href="${window.location.hash}"]`);
-        if (activeLink) {
-          activeLink.classList.add('active');
-        }
-      }, 300);
-    }
-  }
-  
-  // Add animation class to TOC when it becomes sticky
-  function handleTocStickyState() {
-    const tocElement = document.querySelector('.privacy-toc');
-    const heroSection = document.querySelector('.privacy-hero');
-    
-    if (tocElement && heroSection) {
-      const heroBottom = heroSection.getBoundingClientRect().bottom;
-      
-      // Check if we've scrolled past the hero section
-      if (heroBottom <= 0) {
-        tocElement.classList.add('toc-sticky');
-      } else {
-        tocElement.classList.remove('toc-sticky');
-      }
-    }
-  }
-  
-  // Run TOC sticky state check on scroll
-  window.addEventListener('scroll', handleTocStickyState);
-  // Initial check
-  handleTocStickyState();
 });
