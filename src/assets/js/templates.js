@@ -16,13 +16,51 @@ document.addEventListener("DOMContentLoaded", function () {
   console.log("Is local development:", isLocalDev);
   console.log("Is production:", isProduction);
   
-  // Set template paths - always use absolute paths for consistency
-  let navbarPath = "/src/templates/shared/navbar.html";
-  let footerPath = "/src/templates/shared/footer.html";
-  let chatbotPath = "/src/templates/shared/chatbot.html";
+  // Determine if we're on index.html (skip template loading for index.html)
+  const isIndexPage = window.location.pathname === '/' || 
+                     window.location.pathname === '/index.html' ||
+                     window.location.pathname.endsWith('index.html');
+  
+  console.log("Is index page:", isIndexPage);
+  
+  // Skip template loading for index.html as templates should be directly embedded
+  if (isIndexPage) {
+    console.log("Index page detected - skipping template loading, templates should be embedded");
+    // Still initialize navbar functionality if navbar exists
+    setTimeout(() => {
+      if (document.querySelector('.modern-navbar')) {
+        initNavbar();
+        if (typeof setActiveNavigation === 'function') {
+          setActiveNavigation();
+        }
+      }
+      // Initialize chatbot if it exists
+      if (document.querySelector('.chat-widget')) {
+        loadChatbotScripts();
+      }
+    }, 100);
+    return;
+  }
+  
+  // Set template paths based on environment and page context
+  let navbarPath, footerPath, chatbotPath;
+  
+  if (isProduction) {
+    // In production, when accessing clean URLs like /about, /services etc.
+    // the .htaccess serves files from /src/pages/ but the relative context is from root
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
+  } else {
+    // Local development - use absolute paths
+    navbarPath = "/src/templates/shared/navbar.html";
+    footerPath = "/src/templates/shared/footer.html";
+    chatbotPath = "/src/templates/shared/chatbot.html";
+  }
   
   console.log("Using navbar path:", navbarPath);
   console.log("Using footer path:", footerPath);
+  console.log("Using chatbot path:", chatbotPath);
   
   // Check if containers exist
   const navContainer = document.getElementById("navbar-container");
@@ -104,12 +142,29 @@ function loadTemplate(path, container, templateName, callback) {
     })
     .catch(error => {
       console.error(`Error loading ${templateName}:`, error);
-      // Try fallback paths
-      const fallbackPaths = [
-        `/src/templates/shared/${templateName}.html`,
-        `../templates/shared/${templateName}.html`,
-        `../../templates/shared/${templateName}.html`
-      ];
+      // Try fallback paths based on environment
+      const fallbackPaths = [];
+      
+      // Add comprehensive fallback paths
+      if (window.location.hostname === 'aback.ai' || window.location.hostname === 'www.aback.ai') {
+        // Production fallbacks
+        fallbackPaths.push(
+          `/src/templates/shared/${templateName}.html`,
+          `./src/templates/shared/${templateName}.html`,
+          `../templates/shared/${templateName}.html`,
+          `../../templates/shared/${templateName}.html`,
+          `/templates/shared/${templateName}.html`
+        );
+      } else {
+        // Local development fallbacks
+        fallbackPaths.push(
+          `/src/templates/shared/${templateName}.html`,
+          `./src/templates/shared/${templateName}.html`,
+          `../templates/shared/${templateName}.html`,
+          `../../templates/shared/${templateName}.html`,
+          `./templates/shared/${templateName}.html`
+        );
+      }
       
       tryFallbackPaths(fallbackPaths, container, templateName, callback);
     });
@@ -148,24 +203,65 @@ function tryFallbackPaths(paths, container, templateName, callback) {
 
 // Load chatbot scripts
 function loadChatbotScripts() {
-  const chatbotScriptPath = '/src/assets/js/chatbot.js';
-  const configScriptPath = '/src/assets/js/web-config.js';
+  // For production environment, try to load chatbot script with fallbacks
+  const chatbotScriptPaths = [
+    '/src/assets/js/chatbot.js',
+    './src/assets/js/chatbot.js',
+    '../assets/js/chatbot.js'
+  ];
   
-  loadScript(configScriptPath, (configError) => {
-    if (configError) {
+  const configScriptPaths = [
+    '/src/assets/js/web-config.js',
+    './src/assets/js/web-config.js',
+    '../assets/js/web-config.js'
+  ];
+  
+  // Try to load config script first
+  tryLoadScript(configScriptPaths, 0, (configLoaded) => {
+    if (!configLoaded) {
       console.log("Config script failed to load, proceeding anyway");
     }
     
-    loadScript(chatbotScriptPath, (chatbotError) => {
-      if (!chatbotError) {
+    // Load chatbot script
+    tryLoadScript(chatbotScriptPaths, 0, (chatbotLoaded) => {
+      if (chatbotLoaded) {
         setTimeout(() => {
           if (typeof window.initializeChatbot === 'function') {
             window.initializeChatbot();
+          } else {
+            console.log("initializeChatbot function not found, chatbot may not initialize properly");
           }
         }, 100);
+      } else {
+        console.error("Failed to load chatbot script from all attempted paths");
       }
     });
   });
+}
+
+// Helper function to try loading scripts from multiple paths
+function tryLoadScript(paths, index, callback) {
+  if (index >= paths.length) {
+    callback(false);
+    return;
+  }
+  
+  const script = document.createElement('script');
+  script.src = paths[index];
+  script.async = true;
+  
+  script.onload = function() {
+    console.log("Script loaded successfully:", paths[index]);
+    callback(true);
+  };
+  
+  script.onerror = function() {
+    console.error("Failed to load script:", paths[index]);
+    // Try next path
+    tryLoadScript(paths, index + 1, callback);
+  };
+  
+  document.head.appendChild(script);
 }
 
 // Fix navbar URLs based on environment
@@ -185,7 +281,10 @@ function fixNavbarUrls() {
       '/about': '/src/pages/about.html',
       '/careers': '/src/pages/careers.html',
       '/blog': '/src/pages/blog.html',
-      '/contact': '/src/pages/contact.html'
+      '/contact': '/src/pages/contact.html',
+      '/privacy': '/src/pages/privacy.html',
+      '/terms': '/src/pages/terms.html',
+      '/ethics-charter': '/src/pages/ethics-charter.html'
     };
     
     // Fix desktop nav links
@@ -217,31 +316,57 @@ function fixNavbarUrls() {
         console.log(`Updated contact button: ${href} -> /src/pages/contact.html`);
       }
     });
+  } else {
+    console.log("Production environment - keeping clean URLs in navbar");
+    // In production, the navbar already has clean URLs which work with .htaccess
+    // No changes needed
+  }
+}
+    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
+    mobileLinks.forEach(link => {
+      const href = link.getAttribute('href');
+      if (urlMap[href]) {
+        link.setAttribute('href', urlMap[href]);
+        console.log(`Updated mobile nav link: ${href} -> ${urlMap[href]}`);
+      }
+    });
+    
+    // Fix contact button
+    const contactButtons = document.querySelectorAll('.contact-button, .mobile-button');
+    contactButtons.forEach(button => {
+      const href = button.getAttribute('href');
+      if (href === '/contact') {
+        button.setAttribute('href', '/src/pages/contact.html');
+        console.log(`Updated contact button: ${href} -> /src/pages/contact.html`);
+      }
+    });
   }
 }
 
 // Fix footer URLs based on environment
 function fixFooterUrls() {
-  const isProduction = window.location.hostname === 'aback.ai' || 
-                      window.location.hostname === 'www.aback.ai';
+  const isLocalDev = window.location.hostname === 'localhost' || 
+                    window.location.hostname === '127.0.0.1' ||
+                    window.location.hostname === '' ||
+                    window.location.hostname.includes('localhost');
   
-  if (isProduction) {
-    console.log("Fixing footer URLs for production...");
+  if (isLocalDev) {
+    console.log("Fixing footer URLs for local development...");
     
-    // URL mapping for production (clean URLs)
+    // URL mapping for local development
     const urlMap = {
-      '/src/pages/about.html': '/about',
-      '/src/pages/services.html': '/services',
-      '/src/pages/blog.html': '/blog',
-      '/src/pages/careers.html': '/careers',
-      '/src/pages/contact.html': '/contact',
-      '/src/pages/privacy.html': '/privacy',
-      '/src/pages/terms.html': '/terms',
-      '/src/pages/ethics-charter.html': '/ethics-charter'
+      '/about': '/src/pages/about.html',
+      '/services': '/src/pages/services.html',
+      '/blog': '/src/pages/blog.html',
+      '/careers': '/src/pages/careers.html',
+      '/contact': '/src/pages/contact.html',
+      '/privacy': '/src/pages/privacy.html',
+      '/terms': '/src/pages/terms.html',
+      '/ethics-charter': '/src/pages/ethics-charter.html'
     };
     
     // Fix footer links
-    const footerLinks = document.querySelectorAll('.footer-link');
+    const footerLinks = document.querySelectorAll('.footer-link, .footer-bottom-link');
     footerLinks.forEach(link => {
       const href = link.getAttribute('href');
       if (urlMap[href]) {
@@ -249,6 +374,10 @@ function fixFooterUrls() {
         console.log(`Updated footer link: ${href} -> ${urlMap[href]}`);
       }
     });
+  } else {
+    console.log("Production environment - keeping clean URLs in footer");
+    // In production, footer already has clean URLs which work with .htaccess
+    // No changes needed
   }
 }
 
