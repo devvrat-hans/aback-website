@@ -1,555 +1,285 @@
-document.addEventListener("DOMContentLoaded", function () {
-  console.log("Loading templates...");
-  console.log("Current pathname:", window.location.pathname);
-  console.log("Current location:", window.location.href);
-  console.log("Current hostname:", window.location.hostname);
-  
-  // Determine environment based on hostname
-  const isLocalDev = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.hostname === '' ||
-                    window.location.hostname.includes('localhost');
-  
-  const isProduction = window.location.hostname === 'aback.ai' || 
-                      window.location.hostname === 'www.aback.ai';
-  
-  console.log("Is local development:", isLocalDev);
-  console.log("Is production:", isProduction);
-  
-  // Determine if we're on index.html (skip template loading for index.html)
-  const isIndexPage = window.location.pathname === '/' || 
-                     window.location.pathname === '/index.html' ||
-                     window.location.pathname.endsWith('index.html');
-  
-  console.log("Is index page:", isIndexPage);
-  
-  // Skip template loading for index.html as templates should be directly embedded
-  if (isIndexPage) {
-    console.log("Index page detected - skipping template loading, templates should be embedded");
-    // Still initialize navbar functionality if navbar exists
-    setTimeout(() => {
-      if (document.querySelector('.modern-navbar')) {
-        initNavbar();
-        if (typeof setActiveNavigation === 'function') {
-          setActiveNavigation();
-        }
-      }
-      // Initialize chatbot if it exists
-      if (document.querySelector('.chat-widget')) {
-        loadChatbotScripts();
-      }
-    }, 100);
-    return;
-  }
-  
-  // Set template paths based on environment and page context
-  let navbarPath, footerPath, chatbotPath;
-  
-  if (isProduction) {
-    // In production, when accessing clean URLs like /about, /services etc.
-    // the .htaccess serves files from /src/pages/ but the relative context is from root
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  } else {
-    // Local development - use absolute paths
-    navbarPath = "/src/templates/shared/navbar.html";
-    footerPath = "/src/templates/shared/footer.html";
-    chatbotPath = "/src/templates/shared/chatbot.html";
-  }
-  
-  console.log("Using navbar path:", navbarPath);
-  console.log("Using footer path:", footerPath);
-  console.log("Using chatbot path:", chatbotPath);
-  
-  // Check if containers exist
-  const navContainer = document.getElementById("navbar-container");
-  const footerContainer = document.getElementById("footer-container");
-  const chatbotContainer = document.getElementById("chatbot-container");
-  
-  console.log("Navbar container found:", !!navContainer);
-  console.log("Footer container found:", !!footerContainer);
-  console.log("Chatbot container found:", !!chatbotContainer);
-  
-  // Load navbar
-  if (navContainer) {
-    console.log("Loading navbar...");
-    loadTemplate(navbarPath, navContainer, 'navbar', () => {
-      console.log("Navbar loaded, fixing URLs for environment...");
-      fixNavbarUrls();
-      console.log("Navbar URLs fixed, initializing...");
-      setTimeout(() => {
-        initNavbar();
-        if (typeof setActiveNavigation === 'function') {
-          setActiveNavigation();
-        }
-      }, 100);
-    });
-  } else {
-    console.error("Navbar container not found!");
-  }
+/**
+ * Templates.js - Production Template Loader for Aback.ai
+ * Loads navbar, footer, and chatbot templates for pages in /src/pages/ directory
+ * Optimized for production environment with error handling and caching
+ */
 
-  // Load footer
-  if (footerContainer) {
-    console.log("Loading footer...");
-    loadTemplate(footerPath, footerContainer, 'footer', () => {
-      console.log("Footer loaded, fixing URLs for environment...");
-      fixFooterUrls();
-    });
-  } else {
-    console.error("Footer container not found!");
-  }
+(function() {
+    'use strict';
 
-  // Load chatbot - create container if it doesn't exist
-  if (!chatbotContainer) {
-    console.log("Creating chatbot container...");
-    const newChatbotContainer = document.createElement('div');
-    newChatbotContainer.id = 'chatbot-container';
-    document.body.appendChild(newChatbotContainer);
-    
-    loadTemplate(chatbotPath, newChatbotContainer, 'chatbot', () => {
-      console.log("Chatbot loaded, initializing scripts...");
-      loadChatbotScripts();
-    });
-  } else {
-    loadTemplate(chatbotPath, chatbotContainer, 'chatbot', () => {
-      console.log("Chatbot loaded, initializing scripts...");
-      loadChatbotScripts();
-    });
-  }
-});
-
-// Generic template loader function
-function loadTemplate(path, container, templateName, callback) {
-  console.log(`Attempting to load ${templateName} from:`, path);
-  
-  fetch(path)
-    .then(response => {
-      console.log(`${templateName} response status:`, response.status);
-      if (!response.ok) {
-        throw new Error(`Failed to load ${templateName}: ${response.status} ${response.statusText}`);
-      }
-      return response.text();
-    })
-    .then(html => {
-      console.log(`${templateName} loaded successfully, length:`, html.length);
-      container.innerHTML = html;
-      console.log(`${templateName} HTML inserted into container`);
-      
-      if (typeof callback === 'function') {
-        callback();
-      }
-    })
-    .catch(error => {
-      console.error(`Error loading ${templateName}:`, error);
-      // Try fallback paths based on environment
-      const fallbackPaths = [];
-      
-      // Add comprehensive fallback paths
-      if (window.location.hostname === 'aback.ai' || window.location.hostname === 'www.aback.ai') {
-        // Production fallbacks
-        fallbackPaths.push(
-          `/src/templates/shared/${templateName}.html`,
-          `./src/templates/shared/${templateName}.html`,
-          `../templates/shared/${templateName}.html`,
-          `../../templates/shared/${templateName}.html`,
-          `/templates/shared/${templateName}.html`
-        );
-      } else {
-        // Local development fallbacks
-        fallbackPaths.push(
-          `/src/templates/shared/${templateName}.html`,
-          `./src/templates/shared/${templateName}.html`,
-          `../templates/shared/${templateName}.html`,
-          `../../templates/shared/${templateName}.html`,
-          `./templates/shared/${templateName}.html`
-        );
-      }
-      
-      tryFallbackPaths(fallbackPaths, container, templateName, callback);
-    });
-}
-
-// Try fallback paths
-function tryFallbackPaths(paths, container, templateName, callback) {
-  if (paths.length === 0) {
-    console.error(`All fallback paths failed for ${templateName}`);
-    return;
-  }
-  
-  const currentPath = paths.shift();
-  console.log(`Trying fallback path for ${templateName}:`, currentPath);
-  
-  fetch(currentPath)
-    .then(response => {
-      if (!response.ok) {
-        throw new Error(`Fallback failed: ${response.status}`);
-      }
-      return response.text();
-    })
-    .then(html => {
-      console.log(`${templateName} loaded successfully with fallback:`, currentPath);
-      container.innerHTML = html;
-      
-      if (typeof callback === 'function') {
-        callback();
-      }
-    })
-    .catch(error => {
-      console.error(`Fallback path failed for ${templateName}:`, currentPath, error);
-      tryFallbackPaths(paths, container, templateName, callback);
-    });
-}
-
-// Load chatbot scripts
-function loadChatbotScripts() {
-  // For production environment, try to load chatbot script with fallbacks
-  const chatbotScriptPaths = [
-    '/src/assets/js/chatbot.js',
-    './src/assets/js/chatbot.js',
-    '../assets/js/chatbot.js'
-  ];
-  
-  const configScriptPaths = [
-    '/src/assets/js/web-config.js',
-    './src/assets/js/web-config.js',
-    '../assets/js/web-config.js'
-  ];
-  
-  // Try to load config script first
-  tryLoadScript(configScriptPaths, 0, (configLoaded) => {
-    if (!configLoaded) {
-      console.log("Config script failed to load, proceeding anyway");
-    }
-    
-    // Load chatbot script
-    tryLoadScript(chatbotScriptPaths, 0, (chatbotLoaded) => {
-      if (chatbotLoaded) {
-        setTimeout(() => {
-          if (typeof window.initializeChatbot === 'function') {
-            window.initializeChatbot();
-          } else {
-            console.log("initializeChatbot function not found, chatbot may not initialize properly");
-          }
-        }, 100);
-      } else {
-        console.error("Failed to load chatbot script from all attempted paths");
-      }
-    });
-  });
-}
-
-// Helper function to try loading scripts from multiple paths
-function tryLoadScript(paths, index, callback) {
-  if (index >= paths.length) {
-    callback(false);
-    return;
-  }
-  
-  const script = document.createElement('script');
-  script.src = paths[index];
-  script.async = true;
-  
-  script.onload = function() {
-    console.log("Script loaded successfully:", paths[index]);
-    callback(true);
-  };
-  
-  script.onerror = function() {
-    console.error("Failed to load script:", paths[index]);
-    // Try next path
-    tryLoadScript(paths, index + 1, callback);
-  };
-  
-  document.head.appendChild(script);
-}
-
-// Fix navbar URLs based on environment
-function fixNavbarUrls() {
-  const isLocalDev = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.hostname === '' ||
-                    window.location.hostname.includes('localhost');
-  
-  if (isLocalDev) {
-    console.log("Fixing navbar URLs for local development...");
-    
-    // URL mapping for local development
-    const urlMap = {
-      '/services': '/src/pages/services.html',
-      '/whyus': '/src/pages/whyus.html',
-      '/about': '/src/pages/about.html',
-      '/careers': '/src/pages/careers.html',
-      '/blog': '/src/pages/blog.html',
-      '/contact': '/src/pages/contact.html',
-      '/privacy': '/src/pages/privacy.html',
-      '/terms': '/src/pages/terms.html',
-      '/ethics-charter': '/src/pages/ethics-charter.html'
+    // Configuration
+    const TEMPLATE_CONFIG = {
+        basePath: '/src/templates/shared/',
+        templates: {
+            navbar: 'navbar.html',
+            footer: 'footer.html',
+            chatbot: 'chatbot.html'
+        },
+        containers: {
+            navbar: 'navbar-container',
+            footer: 'footer-container',
+            chatbot: 'chatbot-container'
+        },
+        cache: new Map(), // Template cache for performance
+        timeout: 5000 // Request timeout in milliseconds
     };
-    
-    // Fix desktop nav links
-    const navLinks = document.querySelectorAll('.nav-link');
-    navLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (urlMap[href]) {
-        link.setAttribute('href', urlMap[href]);
-        console.log(`Updated nav link: ${href} -> ${urlMap[href]}`);
-      }
-    });
-    
-    // Fix mobile nav links
-    const mobileLinks = document.querySelectorAll('.mobile-nav-link');
-    mobileLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (urlMap[href]) {
-        link.setAttribute('href', urlMap[href]);
-        console.log(`Updated mobile nav link: ${href} -> ${urlMap[href]}`);
-      }
-    });
-    
-    // Fix contact button
-    const contactButtons = document.querySelectorAll('.contact-button, .mobile-button');
-    contactButtons.forEach(button => {
-      const href = button.getAttribute('href');
-      if (href === '/contact') {
-        button.setAttribute('href', '/src/pages/contact.html');
-        console.log(`Updated contact button: ${href} -> /src/pages/contact.html`);
-      }
-    });
-  } else {
-    console.log("Production environment - keeping clean URLs in navbar");
-    // In production, the navbar already has clean URLs which work with .htaccess
-    // No changes needed
-  }
-}
 
-// Fix footer URLs based on environment
-function fixFooterUrls() {
-  const isLocalDev = window.location.hostname === 'localhost' || 
-                    window.location.hostname === '127.0.0.1' ||
-                    window.location.hostname === '' ||
-                    window.location.hostname.includes('localhost');
-  
-  if (isLocalDev) {
-    console.log("Fixing footer URLs for local development...");
-    
-    // URL mapping for local development
-    const urlMap = {
-      '/about': '/src/pages/about.html',
-      '/services': '/src/pages/services.html',
-      '/blog': '/src/pages/blog.html',
-      '/careers': '/src/pages/careers.html',
-      '/contact': '/src/pages/contact.html',
-      '/privacy': '/src/pages/privacy.html',
-      '/terms': '/src/pages/terms.html',
-      '/ethics-charter': '/src/pages/ethics-charter.html'
-    };
-    
-    // Fix footer links
-    const footerLinks = document.querySelectorAll('.footer-link, .footer-bottom-link');
-    footerLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      if (urlMap[href]) {
-        link.setAttribute('href', urlMap[href]);
-        console.log(`Updated footer link: ${href} -> ${urlMap[href]}`);
-      }
-    });
-  } else {
-    console.log("Production environment - keeping clean URLs in footer");
-    // In production, footer already has clean URLs which work with .htaccess
-    // No changes needed
-  }
-}
+    // Pages that should load templates (based on sitemap and pages directory)
+    const TEMPLATE_PAGES = [
+        '/services',
+        '/whyus', 
+        '/about',
+        '/careers',
+        '/contact',
+        '/privacy',
+        '/terms',
+        '/blog',
+        '/ethics-charter'
+    ];
 
-// Function to dynamically load scripts
-function loadScript(src, callback) {
-  console.log("Loading script:", src);
-  const script = document.createElement('script');
-  script.src = src;
-  script.async = true;
-  script.onload = function() {
-    console.log("Script loaded successfully:", src);
-    if (typeof callback === 'function') {
-      callback();
+    /**
+     * Check if current page should load templates
+     * @returns {boolean}
+     */
+    function shouldLoadTemplates() {
+        const currentPath = window.location.pathname;
+        
+        // Always load for pages in the TEMPLATE_PAGES array
+        if (TEMPLATE_PAGES.includes(currentPath)) {
+            return true;
+        }
+        
+        // Handle blog post pages and other dynamic routes
+        if (currentPath.startsWith('/blog/') || currentPath.includes('blog-')) {
+            return true;
+        }
+        
+        // Don't load for root path and other paths
+        return false;
     }
-  };
-  script.onerror = function() {
-    console.error("Failed to load script:", src);
-    if (typeof callback === 'function') {
-      callback(new Error('Failed to load script: ' + src));
-    }
-  };
-  document.head.appendChild(script);
-}
 
-// Initialize navbar functionality
-function initNavbar() {
-  const navbar = document.querySelector('.modern-navbar');
-  const navbarContainer = document.getElementById('navbar-container');
-  const menuToggle = document.querySelector('.menu-toggle');
-  const mobileMenu = document.querySelector('.mobile-menu');
-  
-  if (!navbar) {
-    console.error('Navbar not found!');
-    return;
-  }
-  
-  // Handle menu toggle
-  if (menuToggle && mobileMenu) {
-    menuToggle.addEventListener('click', function() {
-      this.classList.toggle('active');
-      mobileMenu.classList.toggle('active');
-      
-      // Prevent body scrolling when menu is open
-      if (mobileMenu.classList.contains('active')) {
-        document.body.style.overflow = 'hidden';
-      } else {
-        document.body.style.overflow = '';
-      }
-    });
-  }
-  
-  // Add scroll effects
-  window.addEventListener('scroll', function() {
-    if (window.scrollY > 20) {
-      navbar.classList.add('scrolled');
-      if (navbarContainer) navbarContainer.classList.add('scrolled');
+    /**
+     * Create a fetch request with timeout
+     * @param {string} url 
+     * @param {number} timeout 
+     * @returns {Promise}
+     */
+    function fetchWithTimeout(url, timeout = TEMPLATE_CONFIG.timeout) {
+        return Promise.race([
+            fetch(url, {
+                method: 'GET',
+                headers: {
+                    'Cache-Control': 'no-cache',
+                    'Pragma': 'no-cache'
+                }
+            }),
+            new Promise((_, reject) =>
+                setTimeout(() => reject(new Error('Request timeout')), timeout)
+            )
+        ]);
+    }
+
+    /**
+     * Load template with caching and error handling
+     * @param {string} templateName 
+     * @returns {Promise<string>}
+     */
+    async function loadTemplate(templateName) {
+        // Check cache first
+        if (TEMPLATE_CONFIG.cache.has(templateName)) {
+            return TEMPLATE_CONFIG.cache.get(templateName);
+        }
+
+        const templateUrl = TEMPLATE_CONFIG.basePath + TEMPLATE_CONFIG.templates[templateName];
+        
+        try {
+            const response = await fetchWithTimeout(templateUrl);
+            
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+            
+            const templateHTML = await response.text();
+            
+            // Cache the template
+            TEMPLATE_CONFIG.cache.set(templateName, templateHTML);
+            
+            return templateHTML;
+        } catch (error) {
+            console.error(`Failed to load template '${templateName}':`, error);
+            return `<!-- Template '${templateName}' failed to load: ${error.message} -->`;
+        }
+    }
+
+    /**
+     * Insert template into container
+     * @param {string} templateName 
+     * @param {string} templateHTML 
+     */
+    function insertTemplate(templateName, templateHTML) {
+        const containerId = TEMPLATE_CONFIG.containers[templateName];
+        const container = document.getElementById(containerId);
+        
+        if (!container) {
+            console.warn(`Container '${containerId}' not found for template '${templateName}'`);
+            return;
+        }
+        
+        try {
+            container.innerHTML = templateHTML;
+            
+            // Dispatch custom event for template loaded
+            const event = new CustomEvent('templateLoaded', {
+                detail: { templateName, containerId }
+            });
+            document.dispatchEvent(event);
+            
+        } catch (error) {
+            console.error(`Failed to insert template '${templateName}':`, error);
+            container.innerHTML = `<!-- Error loading ${templateName} template -->`;
+        }
+    }
+
+    /**
+     * Load all templates
+     * @returns {Promise<void>}
+     */
+    async function loadAllTemplates() {
+        if (!shouldLoadTemplates()) {
+            return;
+        }
+
+        const loadingPromises = Object.keys(TEMPLATE_CONFIG.templates).map(async (templateName) => {
+            try {
+                const templateHTML = await loadTemplate(templateName);
+                insertTemplate(templateName, templateHTML);
+            } catch (error) {
+                console.error(`Error processing template '${templateName}':`, error);
+            }
+        });
+
+        try {
+            await Promise.allSettled(loadingPromises);
+            
+            // Dispatch event when all templates are loaded
+            const allLoadedEvent = new CustomEvent('allTemplatesLoaded');
+            document.dispatchEvent(allLoadedEvent);
+            
+        } catch (error) {
+            console.error('Error loading templates:', error);
+        }
+    }
+
+    /**
+     * Initialize navbar active state based on current page
+     */
+    function initializeNavigation() {
+        document.addEventListener('templateLoaded', function(event) {
+            if (event.detail.templateName === 'navbar') {
+                setActiveNavLink();
+            }
+        });
+    }
+
+    /**
+     * Set active navigation link based on current path
+     */
+    function setActiveNavLink() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+        
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            
+            const linkPath = new URL(link.href).pathname;
+            if (linkPath === currentPath) {
+                link.classList.add('active');
+            }
+        });
+    }
+
+    /**
+     * Initialize chatbot functionality after template is loaded
+     */
+    function initializeChatbot() {
+        document.addEventListener('templateLoaded', function(event) {
+            if (event.detail.templateName === 'chatbot') {
+                // Initialize chatbot if chatbot.js is available
+                if (typeof window.initializeChatbot === 'function') {
+                    window.initializeChatbot();
+                }
+            }
+        });
+    }
+
+    /**
+     * Handle template loading errors gracefully
+     */
+    function handleTemplateErrors() {
+        window.addEventListener('error', function(event) {
+            if (event.filename && event.filename.includes('/src/templates/')) {
+                console.error('Template loading error:', event.error);
+            }
+        });
+    }
+
+    /**
+     * Performance monitoring for template loading
+     */
+    function monitorPerformance() {
+        if (window.performance && window.performance.mark) {
+            window.performance.mark('templates-start');
+            
+            document.addEventListener('allTemplatesLoaded', function() {
+                window.performance.mark('templates-end');
+                window.performance.measure('templates-load-time', 'templates-start', 'templates-end');
+                
+                const measure = window.performance.getEntriesByName('templates-load-time')[0];
+                if (measure) {
+                    console.log(`Templates loaded in ${measure.duration.toFixed(2)}ms`);
+                }
+            });
+        }
+    }
+
+    /**
+     * Initialize the template loader
+     */
+    function initialize() {
+        // Start performance monitoring
+        monitorPerformance();
+        
+        // Set up error handling
+        handleTemplateErrors();
+        
+        // Initialize navigation handling
+        initializeNavigation();
+        
+        // Initialize chatbot handling
+        initializeChatbot();
+        
+        // Load templates
+        loadAllTemplates().catch(error => {
+            console.error('Critical error loading templates:', error);
+        });
+    }
+
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
     } else {
-      navbar.classList.remove('scrolled');
-      if (navbarContainer) navbarContainer.classList.remove('scrolled');
+        // DOM is already ready
+        initialize();
     }
-  });
-  
-  // Set active link based on current page - use robust function from main.js if available
-  if (typeof setActiveNavigation === 'function') {
-    setActiveNavigation();
-  } else {
-    setActiveNavLink();
-  }
-  
-  // Close mobile menu on window resize (if desktop size)
-  if (mobileMenu && menuToggle) {
-    window.addEventListener('resize', function() {
-      if (window.innerWidth > 768 && mobileMenu.classList.contains('active')) {
-        mobileMenu.classList.remove('active');
-        menuToggle.classList.remove('active');
-        document.body.style.overflow = '';
-      }
-    });
-  }
-  
-  // Show the navbar with animation
-  setTimeout(() => {
-    if (navbar) {
-      navbar.style.opacity = '1';
-      navbar.style.transform = 'translateX(-50%) translateY(0)';
-      navbar.style.visibility = 'visible';
-      navbar.style.display = 'block';
-      console.log("Navbar made visible");
-    }
-  }, 100);
-}
 
-// Set active nav link based on current page
-function setActiveNavLink() {
-  const currentPath = window.location.pathname;
-  let currentPageName = currentPath.replace(/^\//, '') || 'home'; // Remove leading slash
-  
-  // Handle clean URLs in production (aback.ai/services -> services)
-  if (currentPath === '/') {
-    currentPageName = 'home';
-  }
-  
-  console.log("Current path:", currentPath);
-  console.log("Current page name:", currentPageName);
-  
-  // Desktop nav links
-  const navLinks = document.querySelectorAll('.nav-link');
-  if (navLinks.length) {
-    navLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      let hrefPageName;
-      
-      // Extract page name from href
-      if (href === '/' || href.includes('index')) {
-        hrefPageName = 'home';
-      } else if (href.includes('/src/pages/')) {
-        // Local development structure: /src/pages/services -> services
-        hrefPageName = href.split('/').pop().replace('', '');
-      } else {
-        // Clean URL structure: /services -> services or absolute paths
-        hrefPageName = href.replace(/^\//, '').replace('', '') || 'home';
-        // Handle absolute paths
-        if (hrefPageName.includes('/')) {
-          hrefPageName = hrefPageName.split('/').pop().replace('', '');
-        }
-      }
-      
-      // Check for home page special case
-      const isHomePage = currentPageName === 'home' || currentPageName === '';
-      
-      // Enhanced match logic
-      let isMatch = false;
-      
-      // Home page matches
-      if (isHomePage && hrefPageName === 'home') {
-        isMatch = true;
-      } 
-      // Exact match for other pages
-      else if (hrefPageName === currentPageName && currentPageName !== '' && currentPageName !== 'home') {
-        isMatch = true;
-      }
-      
-      if (isMatch) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
-    });
-  }
-  
-  // Mobile nav links 
-  const mobileLinks = document.querySelectorAll('.mobile-nav-link');
-  if (mobileLinks.length) {
-    mobileLinks.forEach(link => {
-      const href = link.getAttribute('href');
-      let hrefPageName;
-      
-      // Extract page name from href
-      if (href === '/' || href.includes('index')) {
-        hrefPageName = 'home';
-      } else if (href.includes('/src/pages/')) {
-        // Local development structure: /src/pages/services -> services
-        hrefPageName = href.split('/').pop().replace('', '');
-      } else {
-        // Clean URL structure: /services -> services or absolute paths
-        hrefPageName = href.replace(/^\//, '').replace('', '') || 'home';
-        // Handle absolute paths
-        if (hrefPageName.includes('/')) {
-          hrefPageName = hrefPageName.split('/').pop().replace('', '');
-        }
-      }
-      
-      // Check for home page special case
-      const isHomePage = currentPageName === 'home' || currentPageName === '';
-      
-      // Enhanced match logic for mobile
-      let isMatch = false;
-      
-      // Home page matches
-      if (isHomePage && hrefPageName === 'home') {
-        isMatch = true;
-      } 
-      // Exact match for other pages
-      else if (hrefPageName === currentPageName && currentPageName !== '' && currentPageName !== 'home') {
-        isMatch = true;
-      }
-      
-      if (isMatch) {
-        link.classList.add('active');
-      } else {
-        link.classList.remove('active');
-      }
-    });
-  }
-}
+    // Expose public API for debugging (only in development)
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        window.TemplateLoader = {
+            config: TEMPLATE_CONFIG,
+            loadTemplate,
+            shouldLoadTemplates,
+            cache: TEMPLATE_CONFIG.cache
+        };
+    }
+
+})();
