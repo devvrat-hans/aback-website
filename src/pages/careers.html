@@ -17,7 +17,73 @@
 </head>
   <body>
     <!-- Navbar -->
-    <div id="navbar-container"></div>
+  <nav class="modern-navbar">
+    <div class="navbar-container">
+      <!-- Left Section - Brand -->
+      <div class="nav-section nav-left">
+          <a href="/" class="nav-brand">
+            <img src="/src/assets/images/aback-ai-only-logo-1280-no-bg.png" alt="Aback.ai Logo" class="nav-logo-img">
+            <span class="nav-brand-text">Aback<span class="accent">.ai</span></span>
+          </a>
+        </div>
+        
+        <!-- Middle Section - Navigation Links -->
+        <div class="nav-section nav-middle">
+          <div class="nav-links">
+            <a href="/" class="nav-link home-link active" id="home-nav-link">
+              <span class="nav-link-text">Home</span>
+            </a>
+            <a href="/services" class="nav-link">
+              <span class="nav-link-text">Services</span>
+            </a>
+            <a href="/whyus" class="nav-link">
+              <span class="nav-link-text">Why Us</span>
+            </a>
+            <a href="/about" class="nav-link">
+              <span class="nav-link-text">About</span>
+            </a>
+            <a href="/careers" class="nav-link">
+              <span class="nav-link-text">Careers</span>
+            </a>
+            <a href="/blog" class="nav-link">
+              <span class="nav-link-text">Blog</span>
+            </a>
+          </div>
+        </div>
+      
+      <!-- Right Section - Contact Button -->
+      <div class="nav-section nav-right">
+        <a href="/contact" class="nav-button contact-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <span>Contact Us</span>
+        </a>
+      </div>
+    </div>
+    
+    <!-- Mobile menu button -->
+    <div class="menu-toggle">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+    
+    <!-- Mobile Menu -->
+    <div class="mobile-menu">
+      <div class="mobile-nav-links">
+        <a href="/" class="mobile-nav-link active">Home</a>
+        <a href="/services" class="mobile-nav-link">Services</a>
+        <a href="/whyus" class="mobile-nav-link">Why Us</a>
+        <a href="/about" class="mobile-nav-link">About</a>
+        <a href="/careers" class="mobile-nav-link">Careers</a>
+        <a href="/blog" class="mobile-nav-link">Blog</a>
+      </div>
+      <div class="mobile-auth-buttons">
+        <a href="/contact" class="mobile-button mobile-signup">
+          Contact Us
+        </a>
+      </div>
+    </div>
+  </nav>
 
     <div class="main-container">
       <div class="scroll-container">
@@ -209,12 +275,105 @@
         </section>
 
         <!-- Footer -->
-        <div id="footer-container" class="page footer"></div>
+      <div id="footer-container">
+        <footer class="modern-footer">
+          <div class="footer-main">
+            <div class="brand-section">
+              <div class="footer-logo">
+                <img src="/src/assets/images/aback-ai-only-logo-1280-no-bg.png" alt="Aback.ai Logo" class="footer-logo-img">
+                <h3 class="footer-brand">Aback.ai</h3>
+              </div>
+              <p class="footer-tagline">
+                Intelligent automation solutions for modern businesses
+              </p>
+              <div class="social-icons">
+                <a href="https://twitter.com/aback_ai" class="social-icon" aria-label="Twitter">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+                  </svg>
+                </a>
+                <a href="https://linkedin.com/company/aback-ai" class="social-icon" aria-label="LinkedIn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M4.98 3.5c0 1.381-1.11 2.5-2.48 2.5s-2.48-1.119-2.48-2.5c0-1.38 1.11-2.5 2.48-2.5s2.48 1.12 2.48 2.5zm.02 4.5h-5v16h5v-16zm8 0h-4.979v16h4.979v-8.399c0-4.67 6.029-5.052 6.029 0v8.399h4.988v-10.131c0-7.88-8.922-7.593-11.018-3.714v-2.155z"/>
+                  </svg>
+                </a>
+              </div>
+            </div>
+
+            <div class="footer-sections-grid">
+              <div class="footer-section">
+                <h4 class="footer-heading">Quick Links</h4>
+                <ul class="footer-links">
+                  <li><a href="/about" class="footer-link">About Us</a></li>
+                  <li><a href="/services" class="footer-link">Services</a></li>
+                  <li><a href="/blog" class="footer-link">Blog</a></li>
+                  <li><a href="/contact" class="footer-link">Contact Us</a></li>
+                </ul>
+              </div>
+
+              <div class="footer-section">
+                <h4 class="footer-heading">Legal</h4>
+                <ul class="footer-links">
+                  <li><a href="/privacy" class="footer-link">Privacy Policy</a></li>
+                  <li><a href="/terms" class="footer-link">Terms of Service</a></li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="footer-bottom">
+            <div class="copyright">
+              <p>&copy; 2025 Aback.ai Automation Agency. All rights reserved.</p>
+            </div>
+            <div class="footer-bottom-links">
+              <a href="/ethics-charter" class="footer-bottom-link">AI Ethics</a>
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
+  </div>
 
-    <!-- Chatbot -->
-    <div id="chatbot-container"></div>
+  <!-- Chatbot -->
+  <div class="chat-widget">
+      <div class="chat-toggle">
+          <span class="chat-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+              </svg>
+          </span>
+      </div>
+      
+      <div class="chat-box">
+          <div class="chat-header">
+              <h3>Aback.ai Assistant</h3>
+              <button class="close-chat">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18"></line>
+                      <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+              </button>
+          </div>
+          
+          <div class="chat-messages">
+              <!-- Messages will be added here dynamically -->
+          </div>
+          
+          <div class="chat-input">
+              <input type="text" id="chat-input-field" placeholder="Type your message..." autocomplete="off">
+              <button class="send-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                  </svg>
+              </button>
+          </div>
+          
+          <div class="powered-by">Powered by Aback.ai</div>
+      </div>
+  </div>
+    </div>
+
 
     <!-- JavaScript -->
     <script src="/src/assets/js/templates.js"></script>
