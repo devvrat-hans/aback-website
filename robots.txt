@@ -10,6 +10,7 @@ Allow: /contact
 Allow: /privacy
 Allow: /terms
 Allow: /ethics-charter
+Allow: /blog
 
 # Allow CSS, JS, and images
 Allow: /src/assets/css/
