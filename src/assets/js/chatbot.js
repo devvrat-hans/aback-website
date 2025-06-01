@@ -57,6 +57,41 @@ window.initializeChatbot = function() {
         return;
     }
 
+    // Helper function to extract text from complex response structures
+    function extractTextFromResponse(obj) {
+        if (typeof obj === 'string' && obj.trim().length > 0) {
+            return obj.trim();
+        }
+        
+        if (typeof obj !== 'object' || obj === null) {
+            return null;
+        }
+        
+        // Common keys that might contain the response text
+        const textKeys = ['content', 'message', 'text', 'response', 'answer', 'reply'];
+        
+        for (const key of textKeys) {
+            if (obj[key]) {
+                if (typeof obj[key] === 'string' && obj[key].trim().length > 0) {
+                    return obj[key].trim();
+                } else if (typeof obj[key] === 'object') {
+                    const extracted = extractTextFromResponse(obj[key]);
+                    if (extracted) return extracted;
+                }
+            }
+        }
+        
+        // Recursively search all values
+        for (const value of Object.values(obj)) {
+            const extracted = extractTextFromResponse(value);
+            if (extracted) return extracted;
+        }
+        
+        return null;
+    }
+
+    // Helper function to get response content from Pinecone API format
+    
     // Define common questions and their responses
     const commonResponses = {
         "hi": "Hello! Welcome to Aback.ai. How can I assist you with our automation solutions today?",
@@ -268,20 +303,24 @@ window.initializeChatbot = function() {
                 // Handle error responses from our proxy
                 if (data.error) {
                     console.error('API returned error:', data.message);
+                    if (data.debug) {
+                        console.error('Error debug info:', data.debug);
+                    }
                     return data.message || CHATBOT_CONFIG.fallbackMessage;
                 }
                 
                 // Handle successful responses with wrapped data
                 if (data.success && data.data) {
                     const apiData = data.data;
+                    console.log('Parsing Pinecone API response:', apiData);
                     
-                    // Handle different Pinecone API response formats
-                    if (apiData.message && typeof apiData.message === 'string') {
+                    // Handle Pinecone API standard response format
+                    if (apiData.message && apiData.message.content) {
+                        console.log('Pinecone API call successful - extracted content:', apiData.message.content);
+                        return apiData.message.content;
+                    } else if (apiData.message && typeof apiData.message === 'string') {
                         console.log('Pinecone API call successful (string message)');
                         return apiData.message;
-                    } else if (apiData.message && apiData.message.content) {
-                        console.log('Pinecone API call successful (object message)');
-                        return apiData.message.content;
                     } else if (apiData.choices && apiData.choices.length > 0 && apiData.choices[0].message) {
                         // Handle OpenAI-style response format
                         console.log('OpenAI-style API call successful');
@@ -316,8 +355,11 @@ window.initializeChatbot = function() {
                 
                 // Handle direct API responses (fallback)
                 if (data.message && data.message.content) {
-                    console.log('Direct Pinecone API response');
+                    console.log('Direct Pinecone API response - using message.content:', data.message.content);
                     return data.message.content;
+                } else if (data.message && typeof data.message === 'string') {
+                    console.log('Direct Pinecone API response - using message string:', data.message);
+                    return data.message;
                 } else if (data.choices && data.choices.length > 0 && data.choices[0].message) {
                     // Handle OpenAI-style response format
                     console.log('Direct OpenAI-style API response');
@@ -326,13 +368,28 @@ window.initializeChatbot = function() {
                     // Handle custom response format
                     console.log('Direct custom API response');
                     return data.response;
+                } else if (data.content) {
+                    // Handle direct content response
+                    console.log('Direct content API response');
+                    return data.content;
                 } else if (typeof data === 'string') {
                     // Sometimes the response might be a plain string
                     console.log('API returned plain string response');
                     return data;
                 } else {
-                    console.error('Unexpected response format:', data);
+                    console.error('Unexpected response format - debugging info:');
+                    console.error('Data type:', typeof data);
+                    console.error('Data:', data);
                     console.error('Available keys:', Object.keys(data));
+                    console.error('Raw response text was:', responseText);
+                    
+                    // Try to extract any meaningful text from the response
+                    const extractedText = extractTextFromResponse(data);
+                    if (extractedText) {
+                        console.log('Extracted text from response:', extractedText);
+                        return extractedText;
+                    }
+                    
                     throw new Error('Invalid response format from server');
                 }
                 

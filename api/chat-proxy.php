@@ -42,7 +42,7 @@ if (!$assistantName && isset($_SERVER['PINECONE_ASSISTANT_NAME'])) {
     $assistantName = $_SERVER['PINECONE_ASSISTANT_NAME'];
 }
 
-$apiVersion = '2025-01';
+$apiVersion = '2025-04';
 $model = 'gpt-4o';
 
 // Check if API credentials are available
@@ -89,6 +89,14 @@ curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
 curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+curl_setopt($ch, CURLOPT_HEADER, false);
+curl_setopt($ch, CURLOPT_VERBOSE, false);
+curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, true);
+
+// Log the request for debugging
+error_log("Sending request to Pinecone API: " . $apiUrl);
+error_log("Request headers: " . json_encode($headers));
+error_log("Request body: " . json_encode($postData));
 
 // Execute the request
 $response = curl_exec($ch);
@@ -98,7 +106,7 @@ curl_close($ch);
 
 // Log response for debugging (remove in production)
 error_log("Pinecone API Response Code: " . $httpCode);
-error_log("Pinecone API Response: " . substr($response, 0, 500) . "...");
+error_log("Pinecone API Response Body (first 1000 chars): " . substr($response, 0, 1000) . "...");
 
 // Check for cURL errors
 if ($error) {
@@ -144,6 +152,19 @@ if (json_last_error() !== JSON_ERROR_NONE) {
 
 // Log the parsed response structure for debugging
 error_log("Parsed response structure: " . json_encode(array_keys($responseData)));
+error_log("Full response data: " . json_encode($responseData));
+
+// Validate that we have the expected Pinecone response structure
+if (!isset($responseData['message']) || !isset($responseData['message']['content'])) {
+    error_log("Invalid Pinecone API response structure - missing message.content");
+    http_response_code(200);
+    echo json_encode([
+        'error' => true,
+        'message' => "I'm sorry, I received an invalid response format. Please try again.",
+        'debug' => ['response_keys' => array_keys($responseData)]
+    ]);
+    exit();
+}
 
 // Return the parsed response
 http_response_code(200);
