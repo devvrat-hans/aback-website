@@ -46,8 +46,7 @@ $apiUrl = "https://prod-1-data.ke.pinecone.io/assistant/chat/" . PINECONE_ASSIST
 
 $headers = [
     'Content-Type: application/json',
-    'Api-Key: ' . PINECONE_API_KEY,
-    'X-Pinecone-API-Version: ' . PINECONE_API_VERSION
+    'Api-Key: ' . PINECONE_API_KEY
 ];
 
 $postData = [
@@ -58,7 +57,7 @@ $postData = [
         ]
     ],
     'stream' => false,
-    'model' => PINECONE_MODEL
+    'model' => 'gpt-4o'
 ];
 
 // Initialize cURL session

@@ -195,6 +195,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function sendToChatProxy(userMessage) {
         try {
+            console.log("No hardcoded response found, calling Pinecone API...");
+            
             // Check if config is available
             if (typeof CHATBOT_CONFIG === 'undefined') {
                 console.error("Chatbot configuration not found!");
@@ -212,6 +214,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 })
             });
 
+            console.log("Response status:", response.status);
+            console.log("Response headers:", [...response.headers.entries()]);
+
             // Check if response is ok
             if (!response.ok) {
                 const errorText = await response.text();
@@ -221,21 +226,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Parse the response
             const data = await response.json();
-            console.log("API response:", data);
+            console.log("API response data:", data);
 
             // Extract the correct assistant's message from the response
+            // First check for Pinecone format
             if (data && data.message && data.message.content) {
+                console.log("Found message in data.message.content:", data.message.content);
                 return formatBotResponse(data.message.content);
             }
-            // Alternative format that might be returned
+            // Alternative format that might be returned (OpenAI format)
             else if (data && data.choices && data.choices.length > 0) {
                 const message = data.choices[0].message;
                 if (message && message.content) {
+                    console.log("Found message in data.choices[0].message.content:", message.content);
                     return formatBotResponse(message.content);
                 }
             }
+            // Check if data has content directly
+            else if (data && data.content) {
+                console.log("Found message in data.content:", data.content);
+                return formatBotResponse(data.content);
+            }
+            // Check if data is a string (simple response)
+            else if (typeof data === 'string') {
+                console.log("Response is a string:", data);
+                return formatBotResponse(data);
+            }
 
             console.error("Unexpected response format:", data);
+            console.error("Response structure:", JSON.stringify(data, null, 2));
             return "I'm currently experiencing issues processing responses. Please contact us at contact@aback.ai for immediate assistance.";
         } catch (error) {
             console.error("Error with chat API:", error);
