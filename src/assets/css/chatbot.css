@@ -103,6 +103,8 @@
     border-radius: 15px;
     font-size: 0.9em;
     line-height: 1.4;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .bot-message {
@@ -110,6 +112,42 @@
     color: #333;
     border-top-left-radius: 5px;
     align-self: flex-start;
+}
+
+/* Formatted content within chat messages */
+.bot-message ol, 
+.bot-message ul {
+    margin: 5px 0 5px 0;
+    padding-left: 20px;
+}
+
+.bot-message li {
+    margin-bottom: 3px;
+}
+
+.bot-message p {
+    margin: 5px 0;
+}
+
+.bot-message h1, 
+.bot-message h2, 
+.bot-message h3 {
+    margin: 8px 0 5px 0;
+    font-size: 1em;
+    font-weight: bold;
+}
+
+.bot-message a {
+    color: #0059BC;
+    text-decoration: underline;
+}
+
+.bot-message code {
+    background-color: #eee;
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: monospace;
+    font-size: 0.9em;
 }
 
 .user-message {

@@ -17,6 +17,22 @@ RewriteRule ^(.*)$ https://aback.ai/$1 [R=301,L]
 # Serve index.html for root domain
 RewriteRule ^$ index.html [L]
 
+# Allow direct access to static assets with proper cache headers
+<FilesMatch "\.(js|css|jpg|jpeg|png|gif|webp|svg)$">
+    Header set Cache-Control "max-age=86400, public"
+    
+    # Ensure proper MIME types
+    <IfModule mod_mime.c>
+        AddType text/javascript .js
+        AddType text/css .css
+        AddType image/jpeg .jpg .jpeg
+        AddType image/png .png
+        AddType image/gif .gif
+        AddType image/webp .webp
+        AddType image/svg+xml .svg
+    </IfModule>
+</FilesMatch>
+
 # Redirect /index, /index.html, and /index/ to root domain
 RewriteRule ^index\.html?/?$ /? [R=301,L]
 RewriteRule ^index/?$ /? [R=301,L]
@@ -39,99 +55,14 @@ RewriteRule ^blog-(.+)/?$ /src/pages/blog-$1.html [L]
 RewriteCond %{THE_REQUEST} \s/+src/pages/([^?\s]+)\.html[\s?] [NC]
 RewriteRule ^ /%1? [R=301,L]
 
-# Redirect .html URLs to clean URLs (except in src directory)
-RewriteCond %{THE_REQUEST} \s/+([^?\s]+)\.html[\s?] [NC]
-RewriteCond %{REQUEST_URI} !^/src/
-RewriteRule ^ /%1? [R=301,L]
-
-# Remove trailing slashes from non-directory URLs
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^(.+)/$ /$1 [R=301,L]
-
-# Handle specific files that should be accessible
-RewriteRule ^(robots\.txt|sitemap\.xml|favicon\.ico)$ - [L]
-
-# Security headers for better SEO and security
-Header always set X-Content-Type-Options nosniff
-Header always set X-Frame-Options SAMEORIGIN
-Header always set X-XSS-Protection "1; mode=block"
-Header always set Referrer-Policy "strict-origin-when-cross-origin"
-
-# Enable compression for better performance (helps SEO)
-<IfModule mod_deflate.c>
-    AddOutputFilterByType DEFLATE text/plain
-    AddOutputFilterByType DEFLATE text/html
-    AddOutputFilterByType DEFLATE text/xml
-    AddOutputFilterByType DEFLATE text/css
-    AddOutputFilterByType DEFLATE application/xml
-    AddOutputFilterByType DEFLATE application/xhtml+xml
-    AddOutputFilterByType DEFLATE application/rss+xml
-    AddOutputFilterByType DEFLATE application/javascript
-    AddOutputFilterByType DEFLATE application/x-javascript
-</IfModule>
-
-# Set cache headers for static assets (improves page speed - SEO factor)
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
-    ExpiresByType image/png "access plus 1 year"
-    ExpiresByType image/jpg "access plus 1 year"
-    ExpiresByType image/jpeg "access plus 1 year"
-    ExpiresByType image/gif "access plus 1 year"
-    ExpiresByType image/svg+xml "access plus 1 year"
-    ExpiresByType image/webp "access plus 1 year"
-</IfModule>
-
-# Security settings for API directory
-
-# Prevent access to log files
-<Files "*.json">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# Prevent access to backup files
-<Files "*~">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# Prevent access to test files (remove after testing)
-<Files "test.php">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-<Files "config-test.php">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# Allow access to contact-form.php
-<Files "contact-form.php">
-    Order Allow,Deny
-    Allow from all
-</Files>
-
-# Prevent access to .htaccess
-<Files ".htaccess">
-    Order Allow,Deny
-    Deny from all
-</Files>
-
-# Enable CORS for API directory
-<Directory "api">
+# Enable CORS for API directory specifically
+<Directory "/api">
     Header always set Access-Control-Allow-Origin "*"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
     Header always set Access-Control-Max-Age "3600"
 </Directory>
 
-# Enable CORS for chat-proxy.php specifically
-<Files "chat-proxy.php">
-    Header always set Access-Control-Allow-Origin "*"
-    Header always set Access-Control-Allow-Methods "POST, OPTIONS"
-    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
-    Header always set Access-Control-Max-Age "3600"
-</Files>
+# Handle OPTIONS requests for CORS preflight
+RewriteCond %{REQUEST_METHOD} OPTIONS
+RewriteRule ^(.*)$ $1 [R=200,L]
