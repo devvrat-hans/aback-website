@@ -30,16 +30,35 @@ if (!$requestData || !isset($requestData['message']) || empty($requestData['mess
     exit();
 }
 
-// Load API credentials from environment variables
+// Load API credentials from environment variables or .htaccess
 $apiKey = getenv('PINECONE_API_KEY');
 $assistantName = getenv('PINECONE_ASSISTANT_NAME');
+
+// If not in environment, try to get from server variables (set by .htaccess)
+if (!$apiKey && isset($_SERVER['PINECONE_API_KEY'])) {
+    $apiKey = $_SERVER['PINECONE_API_KEY'];
+}
+if (!$assistantName && isset($_SERVER['PINECONE_ASSISTANT_NAME'])) {
+    $assistantName = $_SERVER['PINECONE_ASSISTANT_NAME'];
+}
+
 $apiVersion = '2025-01';
 $model = 'gpt-4o';
 
 // Check if API credentials are available
 if (!$apiKey || !$assistantName) {
+    // Log debugging info (remove in production)
+    error_log("Pinecone API Key present: " . (!empty($apiKey) ? "Yes" : "No"));
+    error_log("Assistant Name present: " . (!empty($assistantName) ? "Yes" : "No"));
+    
     http_response_code(500);
-    echo json_encode(['error' => 'Server configuration error']);
+    echo json_encode([
+        'error' => 'Server configuration error',
+        'debug' => [
+            'api_key_set' => !empty($apiKey),
+            'assistant_name_set' => !empty($assistantName)
+        ]
+    ]);
     exit();
 }
 

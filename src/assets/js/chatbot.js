@@ -2,6 +2,19 @@
 window.initializeChatbot = function() {
     console.log('Attempting to initialize chatbot');
     
+    // Check if CHATBOT_CONFIG is available
+    if (typeof CHATBOT_CONFIG === 'undefined') {
+        console.error('CHATBOT_CONFIG not found. Make sure web-config.js is loaded before chatbot.js');
+        // Define fallback config
+        window.CHATBOT_CONFIG = {
+            proxyUrl: "/api/chat-proxy.php",
+            maxRetries: 3,
+            retryDelay: 1000,
+            timeout: 30000,
+            fallbackMessage: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment or contact our team at contact@aback.ai for immediate assistance."
+        };
+    }
+    
     // Add a counter to prevent infinite retries
     if (!window.chatbotInitAttempts) {
         window.chatbotInitAttempts = 0;
@@ -225,6 +238,9 @@ window.initializeChatbot = function() {
                     if (response.status === 429) {
                         return "I'm receiving a lot of questions right now. Please wait a moment and try again.";
                     } else if (response.status >= 500) {
+                        // Show more detailed error if available
+                        const debugInfo = errorData.debug ? JSON.stringify(errorData.debug) : '';
+                        console.error('Server error details:', debugInfo);
                         throw new Error(errorData.error || `Server error: ${response.status}`);
                     } else if (response.status === 400) {
                         return "I'm sorry, I couldn't understand your message. Could you please rephrase it?";
@@ -363,3 +379,14 @@ if (document.readyState === 'loading') {
 } else {
     window.initializeChatbot();
 }
+
+// Also initialize when called directly (for hardcoded chatbots)
+document.addEventListener('DOMContentLoaded', function() {
+    // Small delay to ensure all scripts are loaded
+    setTimeout(function() {
+        if (document.querySelector('.chat-widget') && !document.querySelector('.chat-toggle[data-chatbot-initialized="true"]')) {
+            console.log('Initializing hardcoded chatbot');
+            window.initializeChatbot();
+        }
+    }, 100);
+});
