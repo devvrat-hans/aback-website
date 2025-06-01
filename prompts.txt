@@ -1,16 +1,3 @@
-based on the website that we now have, modify the footer.html. Keep only those links in the footer which are important and necessary to be present in the website.
-also if you want to detlete some unecessary pages form teh footer which were initially there, tehn you can.
-The desing of the footer lookks good, no need to change that, only modify the content of hte footer 
-
---------------------------
-
-when i open the index.html page of the website it opens like this with this url https://aback.ai/index
-
-update the .htaccess to make the url of the index.html page as aback.ai and nothing else
-fix this thing
-
---------------------------
-
 so we have pages and we have the index.html
 
 modify the template.js to load the navbar, footer and the chatbot in the pages which include the about.html, blog.html, careers.html, contact.html, ethics-charter.html, privacy.html, terms.html, whyus.html, serivces.html
@@ -21,3 +8,12 @@ to best of my knowledge, teh hosted wesite is not loading templates because of s
 the current strucsture of the url on the hosted website is not being followed on the website templates and is causing not loading of templates.
 
 please fix this issue as the production environment currently doesn't have any navbar, chatbot or footer
+
+
+-------------------
+
+now write a blog posts which targets the keywords: aback, aback.ai and stuff
+this will help us rank our website whenever some searched the word 
+"aback"
+
+the format of the article should be same as that of the existing articles on the wesite and nothing shoudq be different from them as far as the format of the blog post and design aspects are concerned onluy change the contetn of the blogpost
