@@ -60,7 +60,7 @@ if (!$apiKey || !$assistantName) {
     http_response_code(200);
     echo json_encode([
         'error' => true,
-        'message' => 'Server configuration error - API credentials not found'
+        'message' => 'API credentials not configured. Please update the config.php file with your Pinecone API key and assistant name.'
     ]);
     exit();
 }
