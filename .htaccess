@@ -108,6 +108,12 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Deny from all
 </Files>
 
+# Allow access to contact-form.php
+<Files "contact-form.php">
+    Order Allow,Deny
+    Allow from all
+</Files>
+
 # Prevent access to .htaccess
 <Files ".htaccess">
     Order Allow,Deny

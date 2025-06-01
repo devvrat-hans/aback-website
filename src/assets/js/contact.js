@@ -65,23 +65,13 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       if (isValid) {
-        // Submission logic would go here - for now, just show a success message
-        const submitButton = contactForm.querySelector('.submit-button');
-        const originalText = submitButton.innerHTML;
-        
-        submitButton.disabled = true;
-        submitButton.innerHTML = 'Sending...';
-        
-        // Simulate sending (in a real app, this would be an actual API call)
-        setTimeout(() => {
-          contactForm.reset();
-          submitButton.innerHTML = 'Message Sent!';
-          
-          setTimeout(() => {
-            submitButton.disabled = false;
-            submitButton.innerHTML = originalText;
-          }, 3000);
-        }, 1500);
+        // Submit form via AJAX
+        submitContactForm({
+          name: name.value.trim(),
+          email: email.value.trim(),
+          subject: subject.value.trim(),
+          message: message.value.trim()
+        });
       }
     });
   }
@@ -90,6 +80,88 @@ document.addEventListener('DOMContentLoaded', function() {
   function isValidEmail(email) {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(email);
+  }
+  
+  // Submit form function
+  function submitContactForm(formData) {
+    const submitButton = contactForm.querySelector('.submit-button');
+    const originalText = submitButton.innerHTML;
+    
+    // Disable button and show loading state
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Sending...';
+    
+    // Send AJAX request
+    fetch('/api/contact-form.php', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(formData)
+    })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        // Success
+        contactForm.reset();
+        submitButton.innerHTML = 'Message Sent!';
+        showNotification(data.message, 'success');
+        
+        // Reset button after 3 seconds
+        setTimeout(() => {
+          submitButton.disabled = false;
+          submitButton.innerHTML = originalText;
+        }, 3000);
+      } else {
+        // Error
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalText;
+        showNotification(data.message, 'error');
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      submitButton.disabled = false;
+      submitButton.innerHTML = originalText;
+      showNotification('Sorry, there was an error sending your message. Please try again later.', 'error');
+    });
+  }
+  
+  // Show notification function
+  function showNotification(message, type) {
+    // Remove existing notifications
+    const existingNotification = document.querySelector('.notification');
+    if (existingNotification) {
+      existingNotification.remove();
+    }
+    
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `notification notification-${type}`;
+    notification.innerHTML = `
+      <div class="notification-content">
+        <span class="notification-message">${message}</span>
+        <button class="notification-close">&times;</button>
+      </div>
+    `;
+    
+    // Add to page
+    document.body.appendChild(notification);
+    
+    // Show notification
+    setTimeout(() => notification.classList.add('show'), 100);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    }, 5000);
+    
+    // Close button functionality
+    notification.querySelector('.notification-close').addEventListener('click', () => {
+      notification.classList.remove('show');
+      setTimeout(() => notification.remove(), 300);
+    });
   }
   
   // Clear error styling when user begins typing
