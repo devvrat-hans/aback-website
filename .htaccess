@@ -105,8 +105,18 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Deny from all
 </Files>
 
-# Enable CORS for chat-proxy.php only
-<Files "chat-proxy.php">
+# Enable CORS for API directory
+<Directory "api">
+    Header always set Access-Control-Allow-Origin "*"
     Header always set Access-Control-Allow-Methods "POST, OPTIONS"
     Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    Header always set Access-Control-Max-Age "3600"
+</Directory>
+
+# Enable CORS for chat-proxy.php specifically
+<Files "chat-proxy.php">
+    Header always set Access-Control-Allow-Origin "*"
+    Header always set Access-Control-Allow-Methods "POST, OPTIONS"
+    Header always set Access-Control-Allow-Headers "Content-Type, Authorization"
+    Header always set Access-Control-Max-Age "3600"
 </Files>

@@ -49,19 +49,17 @@ $config = [
 $allowedOrigins = $config['allowed_origins'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if (in_array($origin, $allowedOrigins)) {
-    header('Access-Control-Allow-Origin: ' . $origin);
-} else {
-    header('Access-Control-Allow-Origin: *'); // Fallback for development
-}
-
+// Always allow CORS for the deployment
+header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Max-Age: 3600');
 header('Content-Type: application/json');
 
-// Enable error logging for debugging
+// Enable comprehensive error logging for debugging
 error_reporting(E_ALL);
 ini_set('log_errors', 1);
+ini_set('display_errors', 0); // Don't display errors to users
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -85,16 +83,22 @@ $PINECONE_API_URL = $config['api_base_url'] . '/assistants/' . $PINECONE_ASSISTA
 
 // Validate required configuration
 if (empty($PINECONE_API_KEY) || $PINECONE_API_KEY === 'pc-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') {
-    error_log("Pinecone API key not configured");
+    error_log("ERROR: Pinecone API key not configured properly");
     http_response_code(500);
-    echo json_encode(['error' => $config['default_error_message']]);
+    echo json_encode([
+        'error' => $config['default_error_message'],
+        'debug' => 'API key not configured' // Remove this in production
+    ]);
     exit();
 }
 
 if (empty($PINECONE_ASSISTANT_ID) || $PINECONE_ASSISTANT_ID === 'asst-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') {
-    error_log("Pinecone Assistant ID not configured");
+    error_log("ERROR: Pinecone Assistant ID not configured properly");
     http_response_code(500);
-    echo json_encode(['error' => $config['default_error_message']]);
+    echo json_encode([
+        'error' => $config['default_error_message'],
+        'debug' => 'Assistant ID not configured' // Remove this in production
+    ]);
     exit();
 }
 
@@ -170,10 +174,26 @@ $input = file_get_contents('php://input');
 $data = json_decode($input, true);
 
 // Log the received data for debugging
-error_log("Received data: " . json_encode($data));
+error_log("DEBUG: Received raw input: " . $input);
+error_log("DEBUG: Parsed data: " . json_encode($data));
 
 // Validate input
-if (!$data || !isset($data['message']) || empty(trim($data['message']))) {
+if (!$input) {
+    error_log("ERROR: No input received");
+    http_response_code(400);
+    echo json_encode(['error' => 'No input received']);
+    exit();
+}
+
+if (!$data) {
+    error_log("ERROR: Invalid JSON input: " . $input);
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid JSON format']);
+    exit();
+}
+
+if (!isset($data['message']) || empty(trim($data['message']))) {
+    error_log("ERROR: Message field missing or empty");
     http_response_code(400);
     echo json_encode(['error' => 'Invalid input. Message is required.']);
     exit();
@@ -203,21 +223,16 @@ foreach ($suspiciousPatterns as $pattern) {
     }
 }
 
-// Prepare the request to Pinecone - Updated format for Pinecone Assistant API
+// Prepare the request to Pinecone - Correct format for Pinecone Assistant API
 $requestData = [
-    'messages' => [
-        [
-            'role' => 'user',
-            'content' => $userMessage
-        ]
-    ],
-    'stream' => false,
-    'model' => 'gpt-3.5-turbo' // You may need to adjust this based on your Pinecone setup
+    'message' => $userMessage,
+    'stream' => false
 ];
 
 // Log the request for debugging
-error_log("Sending to Pinecone: " . json_encode($requestData));
-error_log("Pinecone URL: " . $PINECONE_API_URL);
+error_log("DEBUG: Sending to Pinecone URL: " . $PINECONE_API_URL);
+error_log("DEBUG: Request data: " . json_encode($requestData));
+error_log("DEBUG: Using API key: " . substr($PINECONE_API_KEY, 0, 10) . "...");
 
 // Initialize cURL
 $ch = curl_init();
@@ -256,28 +271,34 @@ curl_close($ch);
 
 // Handle cURL errors
 if ($curlError) {
-    error_log("cURL Error: " . $curlError);
+    error_log("ERROR: cURL Error: " . $curlError);
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to connect to assistant service.']);
+    echo json_encode([
+        'error' => 'Failed to connect to assistant service.',
+        'debug' => 'cURL error: ' . $curlError // Remove this in production
+    ]);
     exit();
 }
 
 // Handle HTTP errors
 if ($httpCode !== 200) {
-    error_log("Pinecone API Error: HTTP " . $httpCode . " - " . $response);
+    error_log("ERROR: Pinecone API Error: HTTP " . $httpCode . " - " . $response);
     
     // Parse error response if possible
     $errorData = json_decode($response, true);
     $errorMessage = 'Assistant service unavailable.';
+    $debugInfo = "HTTP $httpCode";
     
     if ($errorData && isset($errorData['error'])) {
-        error_log("Pinecone error details: " . json_encode($errorData));
-        // Don't expose internal API errors to users
-        $errorMessage = 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment.';
+        error_log("ERROR: Pinecone error details: " . json_encode($errorData));
+        $debugInfo .= ": " . $errorData['error']['message'] ?? $errorData['error'];
     }
     
     http_response_code(500);
-    echo json_encode(['error' => $errorMessage]);
+    echo json_encode([
+        'error' => $errorMessage,
+        'debug' => $debugInfo // Remove this in production
+    ]);
     exit();
 }
 
@@ -285,36 +306,43 @@ if ($httpCode !== 200) {
 $responseData = json_decode($response, true);
 
 if (!$responseData) {
-    error_log("Invalid JSON response from Pinecone: " . $response);
+    error_log("ERROR: Invalid JSON response from Pinecone: " . $response);
     http_response_code(500);
-    echo json_encode(['error' => 'Invalid response from assistant service.']);
+    echo json_encode([
+        'error' => 'Invalid response from assistant service.',
+        'debug' => 'Invalid JSON response' // Remove this in production
+    ]);
     exit();
 }
 
 // Log parsed response for debugging
-error_log("Parsed Pinecone response: " . json_encode($responseData));
+error_log("DEBUG: Parsed Pinecone response: " . json_encode($responseData));
 
-// Extract the assistant's response - Updated for correct Pinecone format
+// Extract the assistant's response - Handle multiple possible formats
 $assistantResponse = '';
 
-if (isset($responseData['choices'][0]['message']['content'])) {
-    // OpenAI-style response format
-    $assistantResponse = $responseData['choices'][0]['message']['content'];
-} elseif (isset($responseData['message'])) {
-    // Simple message format
+// Check for Pinecone Assistant API response format
+if (isset($responseData['message'])) {
     $assistantResponse = $responseData['message'];
 } elseif (isset($responseData['response'])) {
-    // Response field format
     $assistantResponse = $responseData['response'];
 } elseif (isset($responseData['content'])) {
-    // Content field format
     $assistantResponse = $responseData['content'];
 } elseif (isset($responseData['text'])) {
-    // Text field format
     $assistantResponse = $responseData['text'];
+} elseif (isset($responseData['choices'][0]['message']['content'])) {
+    // OpenAI-style response format
+    $assistantResponse = $responseData['choices'][0]['message']['content'];
+} elseif (isset($responseData['data'])) {
+    // Data wrapper format
+    if (is_string($responseData['data'])) {
+        $assistantResponse = $responseData['data'];
+    } elseif (isset($responseData['data']['message'])) {
+        $assistantResponse = $responseData['data']['message'];
+    }
 } else {
-    error_log("Unexpected response format from Pinecone: " . json_encode($responseData));
-    $assistantResponse = "I'm sorry, I couldn't generate a proper response. Please try rephrasing your question.";
+    error_log("ERROR: Unexpected response format from Pinecone: " . json_encode($responseData));
+    $assistantResponse = "I received a response but couldn't understand the format. Please try rephrasing your question.";
 }
 
 // Sanitize the response

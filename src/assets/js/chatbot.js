@@ -207,13 +207,16 @@ window.initializeChatbot = function() {
                 console.log('Response status:', response.status);
                 console.log('Response headers:', [...response.headers.entries()]);
 
+                // Get response text first to handle both JSON and non-JSON responses
+                const responseText = await response.text();
+                console.log('Raw response:', responseText);
+
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('API error response:', errorText);
+                    console.error('API error response:', responseText);
                     let errorData;
                     
                     try {
-                        errorData = JSON.parse(errorText);
+                        errorData = JSON.parse(responseText);
                     } catch (e) {
                         errorData = { error: `Server returned ${response.status}: ${response.statusText}` };
                     }
@@ -232,15 +235,28 @@ window.initializeChatbot = function() {
                     throw new Error(errorData.error || `API responded with status ${response.status}`);
                 }
 
-                const data = await response.json();
+                // Parse JSON response
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error('Failed to parse JSON response:', responseText);
+                    throw new Error('Invalid response format from server');
+                }
+                
                 console.log('API response data:', data);
                 
                 if (data.success && data.response) {
                     console.log('API call successful');
                     return data.response;
+                } else if (data.response) {
+                    // Sometimes success field might be missing
+                    console.log('API call completed (no success field)');
+                    return data.response;
                 } else if (data.error) {
                     throw new Error(data.error);
                 } else {
+                    console.error('Unexpected response format:', data);
                     throw new Error('Invalid response format from server');
                 }
                 
