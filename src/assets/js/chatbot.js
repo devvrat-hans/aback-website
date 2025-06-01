@@ -6,8 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
     const sendBtn = document.querySelector('.send-btn');
     const chatInput = document.getElementById('chat-input-field');
     const chatMessages = document.querySelector('.chat-messages');
-
-    // Define common questions and their responses for Aback.ai
+    
+    // Chat history array to store conversation for context
+    let chatHistory = [];
+    
+    // Flag to indicate if a request is in progress
+    let isRequestInProgress = false;
+    
+    // Initialize local mode flag - will use local responses if true, Pinecone if false
+    let useLocalMode = true; // Set to false in production to use Pinecone API
+    
+    // Define common questions and their responses for Aback.ai (used in local mode)
     const commonResponses = {
         "hi": "Hello! Welcome to Aback.ai - Your Automation Revolution Partner. How may I assist you today?",
         "hello": "Hello! Welcome to Aback.ai - Your Automation Revolution Partner. How may I assist you today?",
@@ -146,7 +155,12 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    // Add welcome message when chat is opened
+    addMessage("Hello! Welcome to Aback.ai. How can I help you today?", 'bot');
+
     async function sendMessage() {
+        if (isRequestInProgress) return;
+
         const message = chatInput.value.trim();
 
         // Don't send empty messages
@@ -155,116 +169,158 @@ document.addEventListener('DOMContentLoaded', function () {
         // Add user message to chat
         addMessage(message, 'user');
 
+        // Add message to chat history
+        chatHistory.push({
+            role: 'user',
+            content: message
+        });
+
         // Clear input field
         chatInput.value = '';
+        
+        // Disable send button during processing
+        sendBtn.disabled = true;
+        isRequestInProgress = true;
 
-        // First check if we have a pre-defined response for this message
-        const commonResponse = getCommonResponse(message);
+        // First check if we're in local mode and if we have a pre-defined response
+        const commonResponse = useLocalMode ? getCommonResponse(message) : null;
 
         if (commonResponse) {
             // Use the pre-defined response without making an API call
-            addMessage(commonResponse, 'bot');
+            setTimeout(() => {
+                addMessage(commonResponse, 'bot');
+                
+                // Add bot response to chat history
+                chatHistory.push({
+                    role: 'assistant',
+                    content: commonResponse
+                });
+                
+                // Re-enable send button
+                sendBtn.disabled = false;
+                isRequestInProgress = false;
+                
+                // Scroll to bottom of chat
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 500); // Small delay to simulate thinking
         } else {
-            // No pre-defined response found, use the API
-
-            // Show typing indicator
+            // No pre-defined response or not in local mode, use the Pinecone API
             showTypingIndicator();
 
             try {
-                // Send message to our secure proxy
-                const botResponse = await sendToChatProxy(message);
-
+                const botResponse = await sendToPinecone(message);
+                
                 // Remove typing indicator
                 removeTypingIndicator();
 
                 // Add bot message to chat
                 addMessage(botResponse, 'bot');
+                
+                // Add bot response to chat history
+                chatHistory.push({
+                    role: 'assistant',
+                    content: botResponse
+                });
+                
+                // Keep chat history limited to last 10 messages (5 exchanges)
+                if (chatHistory.length > 10) {
+                    chatHistory = chatHistory.slice(chatHistory.length - 10);
+                }
             } catch (error) {
                 // Remove typing indicator
                 removeTypingIndicator();
-
+                
                 // Show error message
                 addMessage("Sorry, I'm having trouble connecting right now. Please try again later or contact us at contact@aback.ai for immediate assistance.", 'bot');
                 console.error("API error:", error);
+            } finally {
+                // Re-enable send button
+                sendBtn.disabled = false;
+                isRequestInProgress = false;
+                
+                // Scroll to bottom of chat
+                chatMessages.scrollTop = chatMessages.scrollHeight;
             }
         }
-
-        // Scroll to bottom of chat
-        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    async function sendToChatProxy(userMessage) {
+    async function sendToPinecone(message) {
         try {
-            console.log("No hardcoded response found, calling Pinecone API...");
-            
             // Check if config is available
             if (typeof CHATBOT_CONFIG === 'undefined') {
                 console.error("Chatbot configuration not found!");
                 return "Sorry, the chatbot is not properly configured. Please contact us at contact@aback.ai for assistance.";
             }
 
-            // Send request to our secure proxy instead of directly to Pinecone
+            // Prepare messages array with conversation history
+            const allMessages = [...chatHistory.slice(0, -1)]; // Include previous history except current message
+            
+            // Log what we're sending to help with debugging
+            console.log("Sending request to API with:", {
+                messages: [{ role: 'user', content: message }],
+                chatHistory: allMessages
+            });
+
+            // Send request to our proxy endpoint
             const response = await fetch(CHATBOT_CONFIG.proxyUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    message: userMessage
+                    messages: [
+                        {
+                            role: 'user',
+                            content: message
+                        }
+                    ],
+                    chatHistory: allMessages // Send all previous chat history except the current message
                 })
             });
 
-            console.log("Response status:", response.status);
-            console.log("Response headers:", [...response.headers.entries()]);
-
-            // Check if response is ok
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // Parse the response
             const data = await response.json();
-            console.log("API response data:", data);
+            console.log("API response:", data);
 
-            // Extract the correct assistant's message from the response
-            // First check for Pinecone format
+            // Handle Pinecone response format
             if (data && data.message && data.message.content) {
-                console.log("Found message in data.message.content:", data.message.content);
                 return formatBotResponse(data.message.content);
             }
-            // Alternative format that might be returned (OpenAI format)
-            else if (data && data.choices && data.choices.length > 0) {
-                const message = data.choices[0].message;
-                if (message && message.content) {
-                    console.log("Found message in data.choices[0].message.content:", message.content);
-                    return formatBotResponse(message.content);
-                }
-            }
-            // Check if data has content directly
+            // Handle if message is directly in the response
             else if (data && data.content) {
-                console.log("Found message in data.content:", data.content);
                 return formatBotResponse(data.content);
             }
-            // Check if data is a string (simple response)
+            // Handle if citations are included
+            else if (data && data.message && data.message.role === 'assistant') {
+                return formatBotResponse(data.message.content);
+            }
+            // Handle alternative formats (OpenAI compatible)
+            else if (data && data.choices && data.choices.length > 0 && data.choices[0].message) {
+                return formatBotResponse(data.choices[0].message.content);
+            }
+            // Handle if response is a simple string
             else if (typeof data === 'string') {
-                console.log("Response is a string:", data);
                 return formatBotResponse(data);
             }
-
-            console.error("Unexpected response format:", data);
-            console.error("Response structure:", JSON.stringify(data, null, 2));
-            return "I'm currently experiencing issues processing responses. Please contact us at contact@aback.ai for immediate assistance.";
+            else {
+                console.error("Unexpected response format:", data);
+                return "I'm sorry, but I couldn't process your request properly. Please contact us at contact@aback.ai for assistance.";
+            }
         } catch (error) {
-            console.error("Error with chat API:", error);
-            return "Sorry, I couldn't connect to the chat service. Please try again later or contact us at contact@aback.ai.";
+            console.error("Error calling chat API:", error);
+            throw error;
         }
     }
 
     // Format bot's response by converting markdown-style formatting to HTML
     function formatBotResponse(text) {
         if (!text) return '';
+
+        // Remove any citation brackets like [1, pp. 5]
+        text = text.replace(/\[\d+(?:,\s*pp\.\s*\d+)?\]/g, '');
 
         // Handle line breaks
         text = text.replace(/\n/g, '<br>');
@@ -306,6 +362,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
     function showTypingIndicator() {
@@ -333,8 +390,4 @@ document.addEventListener('DOMContentLoaded', function () {
 // Add "active" class to body when document is fully loaded
 window.addEventListener('load', function () {
     document.body.classList.add('loaded');
-
-    if (document.querySelector('#navigation-bar')) {
-        document.querySelector('#navigation-bar').classList.add('loaded');
-    }
 });
