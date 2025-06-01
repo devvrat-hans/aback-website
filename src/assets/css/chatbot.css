@@ -225,3 +225,39 @@
     text-align: center;
     margin-bottom: 5px;
 }
+
+/* Mobile Responsive Styles */
+@media screen and (max-width: 768px) {
+    .chat-widget {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    .chat-box {
+        width: 300px;
+        height: 400px;
+        bottom: 60px;
+    }
+    
+    .chat-toggle {
+        width: 55px;
+        height: 55px;
+    }
+    
+    .chat-messages {
+        padding: 15px;
+    }
+    
+    .chat-input {
+        padding: 10px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .chat-box {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+        height: 350px;
+    }
+}

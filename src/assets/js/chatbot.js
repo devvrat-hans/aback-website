@@ -1,26 +1,5 @@
 // Chatbot functionality for Aback.ai website
-window.initializeChatbot = function() {
-    // Check if CHATBOT_CONFIG is available
-    if (typeof CHATBOT_CONFIG === 'undefined') {
-        window.CHATBOT_CONFIG = {
-            proxyUrl: "/api/chat-proxy.php",
-            maxRetries: 3,
-            retryDelay: 1000,
-            timeout: 30000,
-            fallbackMessage: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment or contact our team at contact@aback.ai for immediate assistance."
-        };
-    }
-    
-    // Add a counter to prevent infinite retries
-    if (!window.chatbotInitAttempts) {
-        window.chatbotInitAttempts = 0;
-    }
-    window.chatbotInitAttempts++;
-    
-    if (window.chatbotInitAttempts > 10) {
-        return;
-    }
-    
+document.addEventListener('DOMContentLoaded', function () {
     const chatToggle = document.querySelector('.chat-toggle');
     const chatBox = document.querySelector('.chat-box');
     const closeChat = document.querySelector('.close-chat');
@@ -28,402 +7,315 @@ window.initializeChatbot = function() {
     const chatInput = document.getElementById('chat-input-field');
     const chatMessages = document.querySelector('.chat-messages');
 
-    // If elements are not found, retry after a short delay
-    if (!chatToggle || !chatBox) {
-        setTimeout(window.initializeChatbot, 500);
-        return;
-    }
-    
-    // Check if already initialized to prevent duplicate event listeners
-    if (chatToggle.dataset.chatbotInitialized === 'true') {
-        return;
-    }
+    // Define common questions and their responses for Aback.ai
+    const commonResponses = {
+        "hi": "Hello! Welcome to Aback.ai - Your Automation Revolution Partner. How may I assist you today?",
+        "hello": "Hello! Welcome to Aback.ai - Your Automation Revolution Partner. How may I assist you today?",
+        "hey": "Hello! Welcome to Aback.ai - Your Automation Revolution Partner. How may I assist you today?",
+        "good morning": "Good morning! Welcome to Aback.ai. How can I help you revolutionize your business with AI automation today?",
+        "good afternoon": "Good afternoon! Welcome to Aback.ai. How may I assist you with your automation needs?",
+        "good evening": "Good evening! Welcome to Aback.ai. How can I help you transform your business today?",
 
-    // Helper function to extract text from complex response structures
-    function extractTextFromResponse(obj) {
-        if (typeof obj === 'string' && obj.trim().length > 0) {
-            return obj.trim();
+        "what is aback.ai": "Aback.ai is India's leading AI automation agency specializing in custom automation solutions, AI chatbots, workflow optimization, and intelligent business process automation. We help businesses scale efficiently by implementing cutting-edge AI technologies.",
+        "who are you": "We are Aback.ai, a premier AI automation agency dedicated to revolutionizing businesses through intelligent automation solutions. We specialize in custom AI implementations, chatbots, and workflow optimization.",
+        "tell me about aback.ai": "Aback.ai is a cutting-edge AI automation agency founded to transform how businesses operate. We specialize in custom automation solutions, AI chatbots, intelligent workflows, and business process optimization to help companies achieve unprecedented efficiency and growth.",
+        "when was aback.ai founded": "Aback.ai was founded in 2024 with a mission to democratize AI automation and help businesses harness the power of artificial intelligence for operational excellence.",
+        "company size": "Aback.ai is a dynamic team of AI specialists, automation engineers, and business strategists dedicated to delivering world-class automation solutions.",
+        "company mission": "Our mission is to revolutionize business operations through intelligent automation, making AI accessible and practical for businesses of all sizes.",
+
+        "what services do you offer": "We offer comprehensive AI automation services including: Custom AI Chatbots, Workflow Automation, Business Process Optimization, AI Integration Solutions, Customer Service Automation, and Strategic AI Consulting. Visit our Services page for detailed information.",
+        "what services": "Our core services include AI Chatbots, Workflow Automation, Process Optimization, AI Integration, Customer Service Automation, and Strategic Consulting. Check our Services page for more details.",
+        "ai chatbot services": "We develop intelligent chatbots powered by advanced AI models like GPT-4, capable of handling customer inquiries, lead generation, appointment scheduling, and complex business workflows with natural language understanding.",
+        "automation solutions": "Our automation solutions include workflow optimization, document processing, data analysis automation, customer service automation, and custom AI implementations tailored to your specific business needs.",
+        "ai integration": "We help businesses seamlessly integrate AI into their existing systems, whether it's CRM automation, customer support enhancement, or intelligent data processing solutions.",
+        "workflow optimization": "Our workflow optimization services streamline your business processes using AI, reducing manual work, eliminating bottlenecks, and increasing operational efficiency by up to 80%.",
+
+        "why choose aback.ai": "Choose Aback.ai for our expertise in cutting-edge AI technologies, proven track record of successful implementations, custom-tailored solutions, ongoing support, and commitment to delivering measurable ROI through intelligent automation.",
+        "competitive advantage": "Our competitive advantage lies in our deep AI expertise, ability to create custom solutions rather than one-size-fits-all products, focus on measurable business outcomes, and comprehensive post-implementation support.",
+        "success stories": "We've helped numerous businesses achieve significant improvements in efficiency, cost reduction, and customer satisfaction through our AI automation solutions. Contact us to learn about specific case studies relevant to your industry.",
+        "roi benefits": "Our clients typically see 60-80% reduction in manual tasks, 50% faster response times, significant cost savings, and improved customer satisfaction scores within 3-6 months of implementation.",
+
+        "industries you serve": "We serve various industries including healthcare, finance, e-commerce, manufacturing, education, real estate, legal services, and technology companies, adapting our solutions to meet specific industry requirements.",
+        "healthcare automation": "For healthcare, we provide patient communication automation, appointment scheduling systems, medical record processing, and compliance-focused AI solutions that improve patient care while reducing administrative burden.",
+        "finance automation": "Our finance automation solutions include customer onboarding, fraud detection, document processing, compliance monitoring, and intelligent customer service for banks and financial institutions.",
+        "ecommerce automation": "We help e-commerce businesses with automated customer support, inventory management, order processing, personalized recommendations, and customer journey optimization.",
+        "manufacturing automation": "Our manufacturing solutions include quality control automation, supply chain optimization, predictive maintenance, and intelligent production planning systems.",
+
+        "how does ai automation work": "AI automation works by using machine learning algorithms to understand patterns, make decisions, and execute tasks that traditionally required human intervention, resulting in faster, more accurate, and consistent business processes.",
+        "implementation process": "Our implementation process includes: 1) Business Analysis & Strategy, 2) Custom Solution Design, 3) Development & Integration, 4) Testing & Optimization, 5) Deployment & Training, 6) Ongoing Support & Monitoring.",
+        "timeline for implementation": "Implementation timelines vary based on complexity, typically ranging from 2-8 weeks for chatbot solutions to 3-6 months for comprehensive automation systems. We provide detailed timelines during the consultation phase.",
+        "technology stack": "We use cutting-edge technologies including GPT-4, Claude, custom machine learning models, Python, Node.js, React, cloud platforms (AWS, Azure, GCP), and various AI/ML frameworks for optimal performance.",
+
+        "pricing": "Our pricing is customized based on your specific requirements, scope, and complexity. We offer flexible packages starting from basic chatbot implementations to comprehensive enterprise automation solutions. Contact us for a personalized quote.",
+        "get a quote": "To get a customized quote, please visit our Contact page or email us at contact@aback.ai with your requirements. We'll schedule a consultation to understand your needs and provide a detailed proposal.",
+        "pricing models": "We offer various pricing models including one-time implementation fees, subscription-based models for ongoing services, and hybrid approaches. The best model depends on your specific needs and preferences.",
+        "budget planning": "We work with businesses of all sizes and can tailor solutions to fit various budget ranges. During our consultation, we'll discuss options that align with your budget while maximizing value.",
+
+        "contact information": "You can reach us at contact@aback.ai, visit our Contact page for detailed information, or schedule a consultation directly through our website. We're here to help you transform your business with AI automation.",
+        "how can i contact you": "Contact us via email at contact@aback.ai, through our website's contact form, or schedule a consultation call. We respond to all inquiries within 24 hours during business days.",
+        "schedule consultation": "To schedule a consultation, visit our Contact page or email contact@aback.ai with your preferred time. We offer free initial consultations to discuss your automation needs.",
+        "office hours": "We're available Monday through Friday, 9:00 AM to 6:00 PM IST. For urgent matters, you can email us anytime and we'll respond as soon as possible.",
+
+        "founders": "Aback.ai was founded by Devvrat Hans and Rahul Pandey, both experienced in AI technology and business automation, with a vision to make advanced AI accessible to businesses worldwide.",
+        "team": "Our team consists of AI specialists, automation engineers, business analysts, and customer success managers, all dedicated to delivering exceptional automation solutions.",
+        "expertise": "Our core expertise includes artificial intelligence, machine learning, natural language processing, business process automation, software development, and strategic technology consulting.",
+        "leadership": "Our leadership team combines deep technical expertise in AI and automation with extensive business experience, ensuring solutions that are both technically advanced and commercially viable.",
+
+        "case studies": "We have successful case studies across various industries showing significant improvements in efficiency, cost reduction, and customer satisfaction. Contact us to learn about cases relevant to your specific industry or use case.",
+        "client testimonials": "Our clients consistently report high satisfaction with our solutions, citing improved efficiency, cost savings, and excellent support. Visit our website or contact us for detailed testimonials.",
+        "success metrics": "Our solutions typically deliver 60-80% reduction in manual work, 50% faster response times, 40% cost savings, and significant improvements in customer satisfaction scores.",
+        "portfolio": "Our portfolio includes diverse automation projects from simple chatbot implementations to complex enterprise-wide automation systems across multiple industries.",
+
+        "support": "We provide comprehensive support including initial training, documentation, ongoing maintenance, updates, and 24/7 technical support for critical systems. Our support ensures your automation continues to deliver value.",
+        "training": "We provide complete training for your team on using and managing the automation solutions, including documentation, video tutorials, and hands-on training sessions.",
+        "maintenance": "Our maintenance services include regular updates, performance monitoring, optimization, and proactive issue resolution to ensure your automation systems run smoothly.",
+        "updates": "We provide regular updates to keep your automation solutions current with the latest AI technologies and ensure optimal performance and security.",
+
+        "security": "We implement enterprise-grade security measures including data encryption, secure API access, compliance with industry standards, and regular security audits to protect your business data.",
+        "data privacy": "We are committed to data privacy and comply with all relevant regulations including GDPR. Your data is secure and used only for the intended automation purposes.",
+        "compliance": "Our solutions are designed to meet industry compliance requirements including healthcare HIPAA, financial regulations, and data protection standards.",
+        "reliability": "Our automation solutions are built for high reliability with 99.9% uptime, redundant systems, and proactive monitoring to ensure consistent performance.",
+
+        "scalability": "Our solutions are designed to scale with your business, from handling hundreds to millions of interactions, and can be easily expanded as your needs grow.",
+        "customization": "Every solution is customized to your specific business needs, workflows, and requirements. We don't believe in one-size-fits-all approaches.",
+        "integration": "We seamlessly integrate with your existing systems including CRMs, ERPs, databases, and third-party applications to ensure smooth workflow continuity.",
+        "api access": "We provide API access for advanced users who want to integrate our automation solutions with their custom applications or systems.",
+
+        "artificial intelligence": "We leverage the latest AI technologies including large language models, machine learning, natural language processing, and computer vision to create intelligent automation solutions.",
+        "machine learning": "Our machine learning capabilities enable systems that learn and improve over time, providing increasingly better performance and more accurate results.",
+        "natural language processing": "Our NLP expertise allows us to create chatbots and automation systems that understand and respond to human language naturally and contextually.",
+        "gpt integration": "We integrate advanced language models like GPT-4 to create highly intelligent conversational AI and automation systems capable of complex reasoning and responses.",
+
+        "business transformation": "We help businesses transform their operations through intelligent automation, enabling them to focus on strategic activities while AI handles routine tasks.",
+        "digital transformation": "Our AI automation solutions are key components of digital transformation, helping businesses modernize their operations and stay competitive in the digital age.",
+        "operational efficiency": "Our solutions significantly improve operational efficiency by automating repetitive tasks, reducing errors, and streamlining business processes.",
+        "cost reduction": "Businesses typically achieve 40-60% cost reduction in automated processes while improving quality and speed of operations.",
+
+        "future of automation": "The future of automation lies in intelligent, adaptive systems that can handle complex tasks, learn from experience, and integrate seamlessly with human workflows - exactly what we're building at Aback.ai.",
+        "ai trends": "We stay at the forefront of AI trends including generative AI, autonomous agents, multimodal AI, and edge computing to ensure our clients benefit from the latest technological advances.",
+        "innovation": "Innovation is at our core - we continuously research and implement cutting-edge AI technologies to provide our clients with competitive advantages through automation.",
+
+        "getting started": "Getting started is easy! Contact us at contact@aback.ai or schedule a free consultation through our website. We'll assess your needs and propose the best automation solution for your business.",
+        "next steps": "The next step is to schedule a consultation where we'll discuss your specific needs, assess your current processes, and design a custom automation solution that delivers maximum value for your business.",
+        "free consultation": "Yes, we offer free initial consultations to understand your automation needs and explore how Aback.ai can help transform your business operations.",
+
+        "help": "I can help you learn about Aback.ai's services, automation solutions, implementation process, pricing, or any other questions about AI automation. What would you like to know?",
+        "more information": "For more detailed information about our services, case studies, or to discuss your specific needs, please visit our website or contact us at contact@aback.ai. We're here to help!",
+
+        "thank you": "You're welcome! If you have any more questions about AI automation or how Aback.ai can help your business, feel free to ask or contact us at contact@aback.ai.",
+        "thanks": "You're welcome! Feel free to reach out anytime if you need more information about our automation solutions or want to discuss your specific requirements."
+    };
+
+    // Function to check if user message matches any common questions
+    function getCommonResponse(message) {
+        const normalizedMessage = message.toLowerCase().trim();
+
+        // Check for exact matches
+        if (commonResponses[normalizedMessage]) {
+            return commonResponses[normalizedMessage];
         }
-        
-        if (typeof obj !== 'object' || obj === null) {
-            return null;
-        }
-        
-        // Common keys that might contain the response text
-        const textKeys = ['content', 'message', 'text', 'response', 'answer', 'reply'];
-        
-        for (const key of textKeys) {
-            if (obj[key]) {
-                if (typeof obj[key] === 'string' && obj[key].trim().length > 0) {
-                    return obj[key].trim();
-                } else if (typeof obj[key] === 'object') {
-                    const extracted = extractTextFromResponse(obj[key]);
-                    if (extracted) return extracted;
-                }
+
+        // Check for partial matches - if the user's message contains a key phrase
+        for (const [key, response] of Object.entries(commonResponses)) {
+            if (normalizedMessage.includes(key)) {
+                return response;
             }
         }
-        
-        // Recursively search all values
-        for (const value of Object.values(obj)) {
-            const extracted = extractTextFromResponse(value);
-            if (extracted) return extracted;
-        }
-        
+
+        // No match found
         return null;
     }
 
-    // Define common questions and their responses
-    const commonResponses = {
-        "hi": "Hello! Welcome to Aback.ai. How can I assist you with our automation solutions today?",
-        "hello": "Hello! Welcome to Aback.ai. How can I assist you with our automation solutions today?",
-        "hey": "Hello! Welcome to Aback.ai. How can I assist you with our automation solutions today?",
-        "good morning": "Good morning! Welcome to Aback.ai. How can I help you with your automation needs today?",
-        "good afternoon": "Good afternoon! Welcome to Aback.ai. How may I assist you with our intelligent automation services?",
-        "good evening": "Good evening! Welcome to Aback.ai. How can I help you find the right automation solution today?",
+    // Open chat box when chat toggle is clicked
+    chatToggle.addEventListener('click', () => {
+        chatBox.classList.add('active');
+        // Focus on input field when chat is opened
+        setTimeout(() => chatInput.focus(), 300);
+    });
 
-        "what is aback.ai": "Aback.ai is an intelligent automation agency dedicated to providing cutting-edge automation solutions. We specialize in business process optimization, workflow automation, and custom AI solutions to enhance productivity and efficiency for modern businesses.",
-        "who are you": "We are Aback.ai, a leading automation agency specializing in business process optimization, workflow automation, and custom AI solutions to enhance productivity and efficiency for modern businesses.",
-        "tell me about aback.ai": "Aback.ai is an intelligent automation agency that delivers cutting-edge solutions to streamline workflows, eliminate repetitive tasks, and maximize efficiency through AI-powered systems tailored to your specific business needs.",
-        "company size": "Aback.ai is a dynamic team of automation experts dedicated to helping businesses transform their operations through intelligent automation.",
-        "company history": "Aback.ai was founded with a mission to help businesses leverage the power of automation and AI to optimize their operations, reduce manual tasks, and drive operational efficiency.",
-
-        "what services do you offer": "We offer a comprehensive range of automation services including Process Automation, Workflow Optimization, Strategic Consulting, Systems Integration, Customer Support Automation, and Data Analytics & Insights. Visit our Services page to learn more.",
-        "what services": "Our core services include Process Automation, Workflow Optimization, Strategic Consulting, Systems Integration, Customer Support Automation, and Data Analytics & Insights. You can explore these in detail on our Services page.",
-        "automation solutions": "Our automation solutions help businesses streamline workflows, reduce manual tasks, and increase operational efficiency. We offer specialized solutions for different industries and business needs.",
-        "process automation": "Our process automation solutions streamline your workflows and automate repetitive tasks, freeing your team to focus on higher-value activities.",
-        "workflow optimization": "From workflow design to implementation, our workflow optimization solutions help enhance operational efficiency and ensure smooth business processes.",
-        "consulting services": "Our strategic consulting services help you turn business challenges into opportunities by aligning technology with business goals and implementing innovative digital strategies.",
-        "integration services": "Our integration services connect disparate systems and applications for seamless data flow, breaking down silos and creating a unified technology ecosystem.",
-        "analytics services": "Our data analytics solutions transform raw data into actionable insights, enabling informed decisions and identifying growth opportunities through data-driven strategies.",
-
-        "business process automation": "Our Business Process Automation solutions transform manual workflows into efficient automated systems. We identify bottlenecks, streamline operations, and reduce human error to improve efficiency.",
-        "document automation": "Our Document Automation solutions eliminate manual document handling through intelligent processing. We automatically classify, extract data, and route documents throughout your organization.",
-        "rpa solutions": "Our Robotic Process Automation (RPA) solutions automate repetitive, rule-based tasks using software robots that mimic human actions, increasing accuracy and freeing up your team for more strategic work.",
-        "systems integration": "Our Systems Integration services connect your disparate systems and applications for seamless data flow, eliminating silos and creating unified platforms that enhance efficiency and decision-making.",
-        "api development": "Our API Development services create robust interfaces that allow different applications to communicate and share data effectively, improving system integration and enabling new functionality.",
-        "low-code development": "Our Low-Code Development solutions accelerate application creation through visual development interfaces, allowing faster innovation with less coding expertise required.",
-
-        "help": "I can help you learn about Aback.ai's services, automation solutions, or provide information about how we can help your business. What would you like to know about?",
-        "faq": "You can find answers to frequently asked questions on our FAQ page. If you don't find what you're looking for, please contact us directly.",
-        "technical support": "For technical support regarding our automation solutions, please email support@aback.ai with details about your inquiry. Our technical team will respond promptly.",
-
-        "get a quote": "To request a quote for our services, please fill out the contact form on our website or email us at contact@aback.ai with details about your requirements.",
-        "consultation": "We offer free consultations to discuss how our automation solutions can optimize your operations. Contact us today to schedule one.",
-        "custom solutions": "We develop custom automation solutions tailored to your specific business needs. Contact us to discuss how we can create a specialized solution for your organization.",
-
-        "contact information": "You can reach us via email at contact@aback.ai. Visit our Contact page to find more ways to get in touch.",
-        "how can i contact you": "You can contact us through email at contact@aback.ai or by using the contact form on our Contact page.",
-        "website": "You can find more information about our services, solutions, and team on our website: aback.ai"
-    };
-
-    // Toggle chat box visibility
-    function toggleChatBox() {
-        chatBox.classList.toggle('active');
-        
-        // Show welcome message if this is the first time opening
-        if (chatBox.classList.contains('active') && chatMessages.children.length === 0) {
-            addBotMessage("Hello! Welcome to Aback.ai. How can I help you with your automation needs today?");
-        }
-    }
-
-    // Close chat box
-    function closeChatBox() {
+    // Close chat box when close button is clicked
+    closeChat.addEventListener('click', () => {
         chatBox.classList.remove('active');
-    }
+    });
 
-    // Add a bot message to the chat
-    function addBotMessage(text) {
-        const message = document.createElement('div');
-        message.classList.add('message', 'bot-message');
-        message.textContent = text;
-        chatMessages.appendChild(message);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Add a user message to the chat
-    function addUserMessage(text) {
-        const message = document.createElement('div');
-        message.classList.add('message', 'user-message');
-        message.textContent = text;
-        chatMessages.appendChild(message);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Show typing indicator
-    function showTypingIndicator() {
-        hideTypingIndicator(); // Remove any existing indicator
-        
-        const indicator = document.createElement('div');
-        indicator.classList.add('typing-indicator');
-        indicator.id = 'typing-indicator';
-        
-        for (let i = 0; i < 3; i++) {
-            const bubble = document.createElement('div');
-            bubble.classList.add('typing-bubble');
-            indicator.appendChild(bubble);
-        }
-        
-        chatMessages.appendChild(indicator);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    // Hide typing indicator
-    function hideTypingIndicator() {
-        const indicator = document.getElementById('typing-indicator');
-        if (indicator) {
-            indicator.remove();
-        }
-    }
-
-    // Process user message and get response
-    async function processUserMessage(userInput) {
-        // Check for common responses first
-        const lowerCaseInput = userInput.toLowerCase().trim();
-        
-        // Look for exact matches first
-        if (commonResponses[lowerCaseInput]) {
-            return commonResponses[lowerCaseInput];
-        }
-        
-        // Then check for partial matches
-        for (const [key, value] of Object.entries(commonResponses)) {
-            if (lowerCaseInput.includes(key)) {
-                return value;
-            }
-        }
-        
-        // If no match in common responses, call the Pinecone API
-        try {
-            const response = await callChatAPI(userInput);
-            return response;
-        } catch (error) {
-            // Return a user-friendly error message
-            if (error.message.includes('timeout') || error.name === 'AbortError') {
-                return "I'm taking a bit longer to respond than usual. Please try asking your question again.";
-            } else if (error.message.includes('rate limit')) {
-                return "I'm receiving a lot of questions right now. Please wait a moment and try again.";
-            } else {
-                return CHATBOT_CONFIG.fallbackMessage;
-            }
-        }
-    }
-
-    // Call the chat API with retry logic
-    async function callChatAPI(message) {
-        let lastError;
-        
-        for (let attempt = 1; attempt <= CHATBOT_CONFIG.maxRetries; attempt++) {
-            try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), CHATBOT_CONFIG.timeout);
-                
-                const response = await fetch(CHATBOT_CONFIG.proxyUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ message }),
-                    signal: controller.signal
-                });
-
-                clearTimeout(timeoutId);
-
-                // Get response text first to handle both JSON and non-JSON responses
-                const responseText = await response.text();
-
-                if (!response.ok) {
-                    let errorData;
-                    
-                    try {
-                        errorData = JSON.parse(responseText);
-                    } catch (e) {
-                        errorData = { error: `Server returned ${response.status}: ${response.statusText}` };
-                    }
-                    
-                    // Handle specific error codes
-                    if (response.status === 429) {
-                        return "I'm receiving a lot of questions right now. Please wait a moment and try again.";
-                    } else if (response.status === 400) {
-                        return "I'm sorry, I couldn't understand your message. Could you please rephrase it?";
-                    } else if (response.status === 404) {
-                        return "I'm sorry, the chat service is currently unavailable. Please try again later or contact our team at contact@aback.ai.";
-                    }
-                    
-                    throw new Error(errorData.error || `API responded with status ${response.status}`);
-                }
-
-                // Parse JSON response
-                let data;
-                try {
-                    data = JSON.parse(responseText);
-                } catch (e) {
-                    throw new Error('Invalid response format from server');
-                }
-                
-                // Handle error responses from our proxy
-                if (data.error) {
-                    return data.message || CHATBOT_CONFIG.fallbackMessage;
-                }
-                
-                // Handle successful responses with wrapped data
-                if (data.success && data.data) {
-                    const apiData = data.data;
-                    
-                    // Handle Pinecone API standard response format
-                    if (apiData.message && apiData.message.content) {
-                        return apiData.message.content;
-                    } else if (apiData.message && typeof apiData.message === 'string') {
-                        return apiData.message;
-                    } else if (apiData.choices && apiData.choices.length > 0 && apiData.choices[0].message) {
-                        // Handle OpenAI-style response format
-                        return apiData.choices[0].message.content;
-                    } else if (apiData.response) {
-                        // Handle custom response format
-                        return apiData.response;
-                    } else if (apiData.content) {
-                        // Handle direct content response
-                        return apiData.content;
-                    } else if (typeof apiData === 'string') {
-                        // Handle string responses
-                        return apiData;
-                    } else {
-                        // Try to find any string value in the response
-                        for (const [key, value] of Object.entries(apiData)) {
-                            if (typeof value === 'string' && value.trim().length > 0) {
-                                return value;
-                            }
-                        }
-                        
-                        throw new Error('Invalid response format from API');
-                    }
-                }
-                
-                // Handle direct API responses (fallback)
-                if (data.message && data.message.content) {
-                    return data.message.content;
-                } else if (data.message && typeof data.message === 'string') {
-                    return data.message;
-                } else if (data.choices && data.choices.length > 0 && data.choices[0].message) {
-                    return data.choices[0].message.content;
-                } else if (data.response) {
-                    return data.response;
-                } else if (data.content) {
-                    return data.content;
-                } else if (typeof data === 'string') {
-                    return data;
-                } else {
-                    // Try to extract any meaningful text from the response
-                    const extractedText = extractTextFromResponse(data);
-                    if (extractedText) {
-                        return extractedText;
-                    }
-                    
-                    throw new Error('Invalid response format from server');
-                }
-                
-            } catch (error) {
-                lastError = error;
-                
-                // Don't retry on certain types of errors
-                if (error.name === 'AbortError') {
-                    break;
-                } else if (error.message.includes('400') || error.message.includes('rate limit')) {
-                    break;
-                }
-                
-                // Wait before retrying (except on last attempt)
-                if (attempt < CHATBOT_CONFIG.maxRetries) {
-                    await new Promise(resolve => setTimeout(resolve, CHATBOT_CONFIG.retryDelay));
-                }
-            }
-        }
-        
-        // If all retries failed, throw the last error
-        throw lastError;
-    }
-
-    // Send message function
-    async function sendMessage() {
-        const message = chatInput.value.trim();
-        if (!message) return;
-
-        // Add user message to chat
-        addUserMessage(message);
-        
-        // Clear input and disable controls
-        chatInput.value = '';
-        sendBtn.disabled = true;
-        chatInput.disabled = true;
-        
-        // Show typing indicator
-        showTypingIndicator();
-        
-        try {
-            // Get bot response
-            const response = await processUserMessage(message);
-            
-            // Hide typing indicator and show response
-            hideTypingIndicator();
-            addBotMessage(response);
-        } catch (error) {
-            // Hide typing indicator and show error message
-            hideTypingIndicator();
-            addBotMessage(CHATBOT_CONFIG.fallbackMessage);
-        } finally {
-            // Re-enable controls
-            sendBtn.disabled = false;
-            chatInput.disabled = false;
-            chatInput.focus();
-        }
-    }
-
-    // Event listeners
-    if (chatToggle) {
-        chatToggle.addEventListener('click', toggleChatBox);
-    }
-    
-    if (closeChat) {
-        closeChat.addEventListener('click', closeChatBox);
-    }
-    
-    if (sendBtn) {
-        sendBtn.addEventListener('click', sendMessage);
-    }
-    
-    if (chatInput) {
-        chatInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-    }
-
-    // Close chat box when clicking outside
-    document.addEventListener('click', function(e) {
-        if (chatBox && chatBox.classList.contains('active') && 
-            !chatBox.contains(e.target) && 
-            e.target !== chatToggle) {
-            closeChatBox();
+    // Send message when send button is clicked or Enter key is pressed
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendMessage();
         }
     });
-    
-    // Mark as initialized
-    chatToggle.dataset.chatbotInitialized = 'true';
-}
 
-// Initialize when DOM is loaded or retry if called dynamically
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.initializeChatbot);
-} else {
-    window.initializeChatbot();
-}
+    async function sendMessage() {
+        const message = chatInput.value.trim();
 
-// Also initialize when called directly (for hardcoded chatbots)
-document.addEventListener('DOMContentLoaded', function() {
-    // Small delay to ensure all scripts are loaded
-    setTimeout(function() {
-        if (document.querySelector('.chat-widget') && !document.querySelector('.chat-toggle[data-chatbot-initialized="true"]')) {
-            window.initializeChatbot();
+        // Don't send empty messages
+        if (message === '') return;
+
+        // Add user message to chat
+        addMessage(message, 'user');
+
+        // Clear input field
+        chatInput.value = '';
+
+        // First check if we have a pre-defined response for this message
+        const commonResponse = getCommonResponse(message);
+
+        if (commonResponse) {
+            // Use the pre-defined response without making an API call
+            addMessage(commonResponse, 'bot');
+        } else {
+            // No pre-defined response found, use the API
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            try {
+                // Send message to our secure proxy
+                const botResponse = await sendToChatProxy(message);
+
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                // Add bot message to chat
+                addMessage(botResponse, 'bot');
+            } catch (error) {
+                // Remove typing indicator
+                removeTypingIndicator();
+
+                // Show error message
+                addMessage("Sorry, I'm having trouble connecting right now. Please try again later or contact us at contact@aback.ai for immediate assistance.", 'bot');
+                console.error("API error:", error);
+            }
         }
-    }, 100);
+
+        // Scroll to bottom of chat
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    async function sendToChatProxy(userMessage) {
+        try {
+            // Check if config is available
+            if (typeof CHATBOT_CONFIG === 'undefined') {
+                console.error("Chatbot configuration not found!");
+                return "Sorry, the chatbot is not properly configured. Please contact us at contact@aback.ai for assistance.";
+            }
+
+            // Send request to our secure proxy instead of directly to Pinecone
+            const response = await fetch(CHATBOT_CONFIG.proxyUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    message: userMessage
+                })
+            });
+
+            // Check if response is ok
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Parse the response
+            const data = await response.json();
+            console.log("API response:", data);
+
+            // Extract the correct assistant's message from the response
+            if (data && data.message && data.message.content) {
+                return formatBotResponse(data.message.content);
+            }
+            // Alternative format that might be returned
+            else if (data && data.choices && data.choices.length > 0) {
+                const message = data.choices[0].message;
+                if (message && message.content) {
+                    return formatBotResponse(message.content);
+                }
+            }
+
+            console.error("Unexpected response format:", data);
+            return "I'm currently experiencing issues processing responses. Please contact us at contact@aback.ai for immediate assistance.";
+        } catch (error) {
+            console.error("Error with chat API:", error);
+            return "Sorry, I couldn't connect to the chat service. Please try again later or contact us at contact@aback.ai.";
+        }
+    }
+
+    // Format bot's response by converting markdown-style formatting to HTML
+    function formatBotResponse(text) {
+        if (!text) return '';
+
+        // Handle line breaks
+        text = text.replace(/\n/g, '<br>');
+
+        // Handle numbered lists (1. Item)
+        text = text.replace(/(\d+\.)\s(.*?)(?:<br>|$)/g, '<ol start="$1"><li>$2</li></ol>');
+
+        // Handle markdown-style bullet points
+        text = text.replace(/\* (.*?)(?:<br>|$)/g, '• $1<br>');
+
+        // Handle bold text (**text**)
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+        // Handle italic text (*text*)
+        text = text.replace(/\*([^\*]+)\*/g, '<em>$1</em>');
+
+        // Handle links [text](url)
+        text = text.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank">$1</a>');
+
+        // Handle headers (### Header)
+        text = text.replace(/###\s(.*?)(?:<br>|$)/g, '<h3>$1</h3>');
+        text = text.replace(/##\s(.*?)(?:<br>|$)/g, '<h2>$1</h2>');
+        text = text.replace(/#\s(.*?)(?:<br>|$)/g, '<h1>$1</h1>');
+
+        return text;
+    }
+
+    function addMessage(message, sender) {
+        const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
+        messageElement.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+
+        // Use innerHTML for bot messages to allow HTML formatting
+        // Use textContent for user messages for security
+        if (sender === 'bot') {
+            messageElement.innerHTML = message;
+        } else {
+            messageElement.textContent = message;
+        }
+
+        chatMessages.appendChild(messageElement);
+    }
+
+    function showTypingIndicator() {
+        const typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('typing-indicator');
+
+        for (let i = 0; i < 3; i++) {
+            const typingBubble = document.createElement('div');
+            typingBubble.classList.add('typing-bubble');
+            typingIndicator.appendChild(typingBubble);
+        }
+
+        chatMessages.appendChild(typingIndicator);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        const typingIndicator = document.querySelector('.typing-indicator');
+        if (typingIndicator) {
+            typingIndicator.remove();
+        }
+    }
+});
+
+// Add "active" class to body when document is fully loaded
+window.addEventListener('load', function () {
+    document.body.classList.add('loaded');
+
+    if (document.querySelector('#navigation-bar')) {
+        document.querySelector('#navigation-bar').classList.add('loaded');
+    }
 });
