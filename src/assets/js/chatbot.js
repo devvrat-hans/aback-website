@@ -226,6 +226,9 @@ window.initializeChatbot = function() {
 
                 if (!response.ok) {
                     console.error('API error response:', responseText);
+                    console.error('Response status:', response.status);
+                    console.error('Response headers:', [...response.headers.entries()]);
+                    
                     let errorData;
                     
                     try {
@@ -262,20 +265,67 @@ window.initializeChatbot = function() {
                 
                 console.log('API response data:', data);
                 
-                // Handle Pinecone API response format
+                // Handle error responses from our proxy
+                if (data.error) {
+                    console.error('API returned error:', data.message);
+                    return data.message || CHATBOT_CONFIG.fallbackMessage;
+                }
+                
+                // Handle successful responses with wrapped data
+                if (data.success && data.data) {
+                    const apiData = data.data;
+                    
+                    // Handle different Pinecone API response formats
+                    if (apiData.message && typeof apiData.message === 'string') {
+                        console.log('Pinecone API call successful (string message)');
+                        return apiData.message;
+                    } else if (apiData.message && apiData.message.content) {
+                        console.log('Pinecone API call successful (object message)');
+                        return apiData.message.content;
+                    } else if (apiData.choices && apiData.choices.length > 0 && apiData.choices[0].message) {
+                        // Handle OpenAI-style response format
+                        console.log('OpenAI-style API call successful');
+                        return apiData.choices[0].message.content;
+                    } else if (apiData.response) {
+                        // Handle custom response format
+                        console.log('API call completed with custom format');
+                        return apiData.response;
+                    } else if (apiData.content) {
+                        // Handle direct content response
+                        console.log('API call completed with direct content');
+                        return apiData.content;
+                    } else if (typeof apiData === 'string') {
+                        // Handle string responses
+                        console.log('API returned direct string response');
+                        return apiData;
+                    } else {
+                        console.error('Unexpected API response format:', apiData);
+                        console.error('Available keys:', Object.keys(apiData));
+                        
+                        // Try to find any string value in the response
+                        for (const [key, value] of Object.entries(apiData)) {
+                            if (typeof value === 'string' && value.trim().length > 0) {
+                                console.log(`Using value from key '${key}': ${value}`);
+                                return value;
+                            }
+                        }
+                        
+                        throw new Error('Invalid response format from API');
+                    }
+                }
+                
+                // Handle direct API responses (fallback)
                 if (data.message && data.message.content) {
-                    console.log('Pinecone API call successful');
+                    console.log('Direct Pinecone API response');
                     return data.message.content;
                 } else if (data.choices && data.choices.length > 0 && data.choices[0].message) {
                     // Handle OpenAI-style response format
-                    console.log('OpenAI-style API call successful');
+                    console.log('Direct OpenAI-style API response');
                     return data.choices[0].message.content;
                 } else if (data.response) {
                     // Handle custom response format
-                    console.log('API call completed with custom format');
+                    console.log('Direct custom API response');
                     return data.response;
-                } else if (data.error) {
-                    throw new Error(data.error);
                 } else if (typeof data === 'string') {
                     // Sometimes the response might be a plain string
                     console.log('API returned plain string response');

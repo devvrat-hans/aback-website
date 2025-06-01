@@ -96,24 +96,59 @@ $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 $error = curl_error($ch);
 curl_close($ch);
 
-// Check for cURL errors
-if ($error) {
-    error_log("cURL Error: " . $error);
-    http_response_code(500);
-    echo json_encode(['error' => 'Failed to connect to API service']);
-    exit();
-}
-
 // Log response for debugging (remove in production)
 error_log("Pinecone API Response Code: " . $httpCode);
 error_log("Pinecone API Response: " . substr($response, 0, 500) . "...");
 
+// Check for cURL errors
+if ($error) {
+    error_log("cURL Error: " . $error);
+    http_response_code(200);
+    echo json_encode([
+        'error' => true,
+        'message' => 'Failed to connect to API service',
+        'debug' => ['curl_error' => $error]
+    ]);
+    exit();
+}
+
 // Check if we got a valid response
 if ($httpCode >= 400) {
     error_log("Pinecone API Error - HTTP " . $httpCode . ": " . $response);
+    
+    // Return a more user-friendly error response for client-side handling
+    http_response_code(200); // Return 200 to prevent JS errors
+    echo json_encode([
+        'error' => true,
+        'message' => "I'm sorry, I'm having trouble connecting right now. Please try again in a moment or contact our team at contact@aback.ai for immediate assistance.",
+        'debug' => [
+            'api_status' => $httpCode,
+            'api_response' => substr($response, 0, 200)
+        ]
+    ]);
+    exit();
 }
 
-// Return the API response with the same status code
-http_response_code($httpCode);
-echo $response;
+// Parse and validate the response
+$responseData = json_decode($response, true);
+if (json_last_error() !== JSON_ERROR_NONE) {
+    error_log("Invalid JSON response from Pinecone API: " . $response);
+    http_response_code(200);
+    echo json_encode([
+        'error' => true,
+        'message' => "I'm sorry, I'm having trouble processing the response. Please try again.",
+        'debug' => ['json_error' => json_last_error_msg(), 'raw_response' => substr($response, 0, 200)]
+    ]);
+    exit();
+}
+
+// Log the parsed response structure for debugging
+error_log("Parsed response structure: " . json_encode(array_keys($responseData)));
+
+// Return the parsed response
+http_response_code(200);
+echo json_encode([
+    'success' => true,
+    'data' => $responseData
+]);
 ?>
