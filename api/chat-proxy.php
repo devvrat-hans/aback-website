@@ -1,69 +1,14 @@
 <?php
-// Chat proxy for Pinecone Assistant API
-// This file handles requests to the Pinecone Assistant API for the Aback.ai chatbot
-
-// ===== CONFIGURATION SECTION =====
-// IMPORTANT: Replace these values with your actual Pinecone credentials
-
-$config = [
-    // Your Pinecone API Key (required)
-    'api_key' => 'YOUR_ACTUAL_PINECONE_API_KEY_HERE',
-    
-    // Your Pinecone Assistant ID (required) 
-    'assistant_id' => 'aback-chatbot',
-    
-    // Pinecone API Base URL (updated for your host)
-    'api_base_url' => 'https://prod-1-data.ke.pinecone.io',
-    
-    // Rate limiting settings
-    'rate_limit' => [
-        'max_requests_per_minute' => 20,
-        'max_requests_per_hour' => 100,
-    ],
-    
-    // Request settings
-    'request_timeout' => 30,
-    'connection_timeout' => 10,
-    
-    // Security settings
-    'allowed_origins' => [
-        'https://aback.ai',
-        'https://www.aback.ai',
-        'http://localhost:3000', // For local development
-        'http://localhost:8000', // For local development
-    ],
-    
-    // Logging settings
-    'enable_logging' => true,
-    'log_file' => __DIR__ . '/chat_logs.json',
-    'max_log_entries' => 1000,
-    
-    // Response settings
-    'max_message_length' => 1000,
-    'default_error_message' => 'I apologize, but I\'m having trouble processing your request right now. Please try again in a moment or contact our team at contact@aback.ai for assistance.',
-];
-
-// ===== END CONFIGURATION SECTION =====
-
-// Set CORS headers for cross-origin requests
-$allowedOrigins = $config['allowed_origins'];
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-
-// Always allow CORS for the deployment
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
-header('Access-Control-Max-Age: 3600');
+// Secure API proxy for Pinecone chatbot
 header('Content-Type: application/json');
 
-// Enable comprehensive error logging for debugging
-error_reporting(E_ALL);
-ini_set('log_errors', 1);
-ini_set('display_errors', 0); // Don't display errors to users
+// CORS headers - update with your actual domain in production
+header('Access-Control-Allow-Origin: *'); 
+header('Access-Control-Allow-Methods: POST');
+header('Access-Control-Allow-Headers: Content-Type');
 
 // Handle preflight OPTIONS request
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
     exit();
 }
 
@@ -74,320 +19,72 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit();
 }
 
-// Extract configuration
-$PINECONE_API_KEY = $config['api_key'];
-$PINECONE_ASSISTANT_ID = $config['assistant_id'];
+// Get request body
+$requestBody = file_get_contents('php://input');
+$requestData = json_decode($requestBody, true);
 
-// Updated API endpoint for Pinecone Assistant
-$PINECONE_API_URL = $config['api_base_url'] . '/assistant/chat/' . $PINECONE_ASSISTANT_ID;
+// Validate request data
+if (!$requestData || !isset($requestData['message']) || empty($requestData['message'])) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Invalid request']);
+    exit();
+}
 
-// Validate required configuration
-if (empty($PINECONE_API_KEY) || $PINECONE_API_KEY === 'pc-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') {
-    error_log("ERROR: Pinecone API key not configured properly");
+// Load API credentials from environment variables
+$apiKey = getenv('PINECONE_API_KEY');
+$assistantName = getenv('PINECONE_ASSISTANT_NAME');
+$apiVersion = '2025-01';
+$model = 'gpt-4o';
+
+// Check if API credentials are available
+if (!$apiKey || !$assistantName) {
     http_response_code(500);
-    echo json_encode([
-        'error' => $config['default_error_message'],
-        'debug' => 'API key not configured' // Remove this in production
-    ]);
+    echo json_encode(['error' => 'Server configuration error']);
     exit();
 }
 
-if (empty($PINECONE_ASSISTANT_ID) || $PINECONE_ASSISTANT_ID === 'asst-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx') {
-    error_log("ERROR: Pinecone Assistant ID not configured properly");
-    http_response_code(500);
-    echo json_encode([
-        'error' => $config['default_error_message'],
-        'debug' => 'Assistant ID not configured' // Remove this in production
-    ]);
-    exit();
-}
+// Set up the API request
+$apiUrl = "https://prod-1-data.ke.pinecone.io/assistant/chat/{$assistantName}";
 
-// Rate limiting function
-function checkRateLimit($clientIP, $rateLimitFile, $maxRequestsPerHour, $maxRequestsPerMinute) {
-    $currentTime = time();
-    $hourStart = $currentTime - 3600; // 1 hour ago
-    $minuteStart = $currentTime - 60; // 1 minute ago
-    
-    // Read existing rate limit data
-    $rateLimitData = [];
-    if (file_exists($rateLimitFile)) {
-        $content = file_get_contents($rateLimitFile);
-        if ($content) {
-            $rateLimitData = json_decode($content, true) ?: [];
-        }
-    }
-    
-    // Clean old entries (older than 1 hour)
-    $rateLimitData = array_filter($rateLimitData, function($timestamp) use ($hourStart) {
-        return $timestamp > $hourStart;
-    });
-    
-    // Count requests from this IP in the last hour
-    $hourlyRequests = array_filter($rateLimitData, function($timestamp, $key) use ($clientIP, $hourStart) {
-        return strpos($key, $clientIP . '_') === 0 && $timestamp > $hourStart;
-    }, ARRAY_FILTER_USE_BOTH);
-    
-    // Count requests from this IP in the last minute
-    $minutelyRequests = array_filter($rateLimitData, function($timestamp, $key) use ($clientIP, $minuteStart) {
-        return strpos($key, $clientIP . '_') === 0 && $timestamp > $minuteStart;
-    }, ARRAY_FILTER_USE_BOTH);
-    
-    if (count($hourlyRequests) >= $maxRequestsPerHour) {
-        return ['allowed' => false, 'reason' => 'hourly_limit'];
-    }
-    
-    if (count($minutelyRequests) >= $maxRequestsPerMinute) {
-        return ['allowed' => false, 'reason' => 'minute_limit'];
-    }
-    
-    // Add current request
-    $rateLimitData[$clientIP . '_' . $currentTime] = $currentTime;
-    
-    // Save updated data
-    file_put_contents($rateLimitFile, json_encode($rateLimitData));
-    
-    return ['allowed' => true];
-}
-
-// Get client IP
-$clientIP = $_SERVER['REMOTE_ADDR'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['HTTP_CLIENT_IP'] ?? 'unknown';
-$clientIP = filter_var($clientIP, FILTER_VALIDATE_IP) ? $clientIP : 'unknown';
-
-// Check rate limit
-$rateLimitFile = __DIR__ . '/rate_limit.json';
-$maxRequestsPerHour = $config['rate_limit']['max_requests_per_hour'];
-$maxRequestsPerMinute = $config['rate_limit']['max_requests_per_minute'];
-
-$rateLimitResult = checkRateLimit($clientIP, $rateLimitFile, $maxRequestsPerHour, $maxRequestsPerMinute);
-if (!$rateLimitResult['allowed']) {
-    $message = $rateLimitResult['reason'] === 'minute_limit' 
-        ? 'Too many requests in a short time. Please wait a moment and try again.'
-        : 'Too many requests. Please try again later.';
-    
-    http_response_code(429);
-    echo json_encode(['error' => $message]);
-    exit();
-}
-
-// Get the JSON input
-$input = file_get_contents('php://input');
-$data = json_decode($input, true);
-
-// Log the received data for debugging
-error_log("DEBUG: Received raw input: " . $input);
-error_log("DEBUG: Parsed data: " . json_encode($data));
-
-// Validate input
-if (!$input) {
-    error_log("ERROR: No input received");
-    http_response_code(400);
-    echo json_encode(['error' => 'No input received']);
-    exit();
-}
-
-if (!$data) {
-    error_log("ERROR: Invalid JSON input: " . $input);
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid JSON format']);
-    exit();
-}
-
-if (!isset($data['message']) || empty(trim($data['message']))) {
-    error_log("ERROR: Message field missing or empty");
-    http_response_code(400);
-    echo json_encode(['error' => 'Invalid input. Message is required.']);
-    exit();
-}
-
-$userMessage = trim($data['message']);
-
-// Sanitize input (basic validation)
-if (strlen($userMessage) > $config['max_message_length']) {
-    http_response_code(400);
-    echo json_encode(['error' => 'Message too long. Maximum ' . $config['max_message_length'] . ' characters allowed.']);
-    exit();
-}
-
-// Basic content filtering
-$suspiciousPatterns = [
-    '/(<script|<\/script)/i',
-    '/(javascript:|data:)/i',
-    '/(eval\(|setTimeout\(|setInterval\()/i'
+$headers = [
+    'Content-Type: application/json',
+    'Api-Key: ' . $apiKey,
+    'X-Pinecone-API-Version: ' . $apiVersion
 ];
 
-foreach ($suspiciousPatterns as $pattern) {
-    if (preg_match($pattern, $userMessage)) {
-        http_response_code(400);
-        echo json_encode(['error' => 'Invalid message content.']);
-        exit();
-    }
-}
-
-// Prepare the request to Pinecone - Correct format for Pinecone Assistant API
-$requestData = [
-    'message' => $userMessage,
-    'stream' => false
-];
-
-// Log the request for debugging
-error_log("DEBUG: Sending to Pinecone URL: " . $PINECONE_API_URL);
-error_log("DEBUG: Request data: " . json_encode($requestData));
-error_log("DEBUG: Using API key: " . substr($PINECONE_API_KEY, 0, 10) . "...");
-
-// Initialize cURL
-$ch = curl_init();
-
-// Set cURL options
-curl_setopt_array($ch, [
-    CURLOPT_URL => $PINECONE_API_URL,
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_POST => true,
-    CURLOPT_POSTFIELDS => json_encode($requestData),
-    CURLOPT_HTTPHEADER => [
-        'Content-Type: application/json',
-        'Authorization: Bearer ' . $PINECONE_API_KEY,
-        'User-Agent: Aback.ai-Chatbot/1.0'
+$postData = [
+    'messages' => [
+        [
+            'role' => 'user',
+            'content' => $requestData['message']
+        ]
     ],
-    CURLOPT_TIMEOUT => $config['request_timeout'],
-    CURLOPT_CONNECTTIMEOUT => $config['connection_timeout'],
-    CURLOPT_SSL_VERIFYPEER => true,
-    CURLOPT_SSL_VERIFYHOST => 2,
-    CURLOPT_FOLLOWLOCATION => true,
-    CURLOPT_MAXREDIRS => 3,
-    CURLOPT_ENCODING => '', // Enable compression
-    CURLOPT_VERBOSE => true, // Enable verbose output for debugging
-]);
+    'stream' => false,
+    'model' => $model
+];
+
+// Initialize cURL session
+$ch = curl_init($apiUrl);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($ch, CURLOPT_POST, true);
+curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postData));
+curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 
 // Execute the request
 $response = curl_exec($ch);
 $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-$curlError = curl_error($ch);
-
-// Log response for debugging
-error_log("Pinecone response code: " . $httpCode);
-error_log("Pinecone response: " . $response);
-
+$error = curl_error($ch);
 curl_close($ch);
 
-// Handle cURL errors
-if ($curlError) {
-    error_log("ERROR: cURL Error: " . $curlError);
+// Check for cURL errors
+if ($error) {
     http_response_code(500);
-    echo json_encode([
-        'error' => 'Failed to connect to assistant service.',
-        'debug' => 'cURL error: ' . $curlError // Remove this in production
-    ]);
+    echo json_encode(['error' => 'Failed to connect to API service']);
     exit();
 }
 
-// Handle HTTP errors
-if ($httpCode !== 200) {
-    error_log("ERROR: Pinecone API Error: HTTP " . $httpCode . " - " . $response);
-    
-    // Parse error response if possible
-    $errorData = json_decode($response, true);
-    $errorMessage = 'Assistant service unavailable.';
-    $debugInfo = "HTTP $httpCode";
-    
-    if ($errorData && isset($errorData['error'])) {
-        error_log("ERROR: Pinecone error details: " . json_encode($errorData));
-        $debugInfo .= ": " . $errorData['error']['message'] ?? $errorData['error'];
-    }
-    
-    http_response_code(500);
-    echo json_encode([
-        'error' => $errorMessage,
-        'debug' => $debugInfo // Remove this in production
-    ]);
-    exit();
-}
-
-// Parse the response
-$responseData = json_decode($response, true);
-
-if (!$responseData) {
-    error_log("ERROR: Invalid JSON response from Pinecone: " . $response);
-    http_response_code(500);
-    echo json_encode([
-        'error' => 'Invalid response from assistant service.',
-        'debug' => 'Invalid JSON response' // Remove this in production
-    ]);
-    exit();
-}
-
-// Log parsed response for debugging
-error_log("DEBUG: Parsed Pinecone response: " . json_encode($responseData));
-
-// Extract the assistant's response - Handle multiple possible formats
-$assistantResponse = '';
-
-// Check for Pinecone Assistant API response format
-if (isset($responseData['message'])) {
-    $assistantResponse = $responseData['message'];
-} elseif (isset($responseData['response'])) {
-    $assistantResponse = $responseData['response'];
-} elseif (isset($responseData['content'])) {
-    $assistantResponse = $responseData['content'];
-} elseif (isset($responseData['text'])) {
-    $assistantResponse = $responseData['text'];
-} elseif (isset($responseData['choices'][0]['message']['content'])) {
-    // OpenAI-style response format
-    $assistantResponse = $responseData['choices'][0]['message']['content'];
-} elseif (isset($responseData['data'])) {
-    // Data wrapper format
-    if (is_string($responseData['data'])) {
-        $assistantResponse = $responseData['data'];
-    } elseif (isset($responseData['data']['message'])) {
-        $assistantResponse = $responseData['data']['message'];
-    }
-} else {
-    error_log("ERROR: Unexpected response format from Pinecone: " . json_encode($responseData));
-    $assistantResponse = "I received a response but couldn't understand the format. Please try rephrasing your question.";
-}
-
-// Sanitize the response
-$assistantResponse = trim($assistantResponse);
-
-if (empty($assistantResponse)) {
-    $assistantResponse = $config['default_error_message'];
-}
-
-// Log successful interactions (if enabled)
-if ($config['enable_logging']) {
-    $logData = [
-        'timestamp' => date('c'),
-        'client_ip' => $clientIP,
-        'user_message' => substr($userMessage, 0, 100), // Log only first 100 chars for privacy
-        'response_length' => strlen($assistantResponse),
-        'success' => true,
-        'processing_time' => microtime(true) - ($_SERVER['REQUEST_TIME_FLOAT'] ?? microtime(true))
-    ];
-    
-    // Manage log file size
-    $existingLogs = [];
-    if (file_exists($config['log_file'])) {
-        $logContent = file_get_contents($config['log_file']);
-        if ($logContent) {
-            $existingLogs = array_filter(explode("\n", $logContent));
-        }
-    }
-    
-    // Keep only the most recent entries
-    if (count($existingLogs) >= $config['max_log_entries']) {
-        $existingLogs = array_slice($existingLogs, -($config['max_log_entries'] - 1));
-    }
-    
-    // Add new log entry
-    $existingLogs[] = json_encode($logData);
-    
-    // Write back to file
-    file_put_contents($config['log_file'], implode("\n", $existingLogs) . "\n", LOCK_EX);
-}
-
-// Return the response
-echo json_encode([
-    'response' => $assistantResponse,
-    'timestamp' => date('c'),
-    'success' => true
-]);
+// Return the API response with the same status code
+http_response_code($httpCode);
+echo $response;
 ?>
