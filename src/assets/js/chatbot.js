@@ -262,23 +262,34 @@ window.initializeChatbot = function() {
                 
                 console.log('API response data:', data);
                 
-                if (data.success && data.response) {
-                    console.log('API call successful');
-                    return data.response;
+                // Handle Pinecone API response format
+                if (data.message && data.message.content) {
+                    console.log('Pinecone API call successful');
+                    return data.message.content;
+                } else if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+                    // Handle OpenAI-style response format
+                    console.log('OpenAI-style API call successful');
+                    return data.choices[0].message.content;
                 } else if (data.response) {
-                    // Sometimes success field might be missing
-                    console.log('API call completed (no success field)');
+                    // Handle custom response format
+                    console.log('API call completed with custom format');
                     return data.response;
                 } else if (data.error) {
                     throw new Error(data.error);
+                } else if (typeof data === 'string') {
+                    // Sometimes the response might be a plain string
+                    console.log('API returned plain string response');
+                    return data;
                 } else {
                     console.error('Unexpected response format:', data);
+                    console.error('Available keys:', Object.keys(data));
                     throw new Error('Invalid response format from server');
                 }
                 
             } catch (error) {
                 lastError = error;
                 console.error(`API call attempt ${attempt} failed:`, error.message);
+                console.error('Full error object:', error);
                 
                 // Don't retry on certain types of errors
                 if (error.name === 'AbortError') {

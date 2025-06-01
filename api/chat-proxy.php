@@ -98,9 +98,19 @@ curl_close($ch);
 
 // Check for cURL errors
 if ($error) {
+    error_log("cURL Error: " . $error);
     http_response_code(500);
     echo json_encode(['error' => 'Failed to connect to API service']);
     exit();
+}
+
+// Log response for debugging (remove in production)
+error_log("Pinecone API Response Code: " . $httpCode);
+error_log("Pinecone API Response: " . substr($response, 0, 500) . "...");
+
+// Check if we got a valid response
+if ($httpCode >= 400) {
+    error_log("Pinecone API Error - HTTP " . $httpCode . ": " . $response);
 }
 
 // Return the API response with the same status code
