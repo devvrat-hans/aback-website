@@ -93,8 +93,13 @@ Header always set Referrer-Policy "strict-origin-when-cross-origin"
     Deny from all
 </Files>
 
-# Prevent access to test file (remove after testing)
+# Prevent access to test files (remove after testing)
 <Files "test.php">
+    Order Allow,Deny
+    Deny from all
+</Files>
+
+<Files "config-test.php">
     Order Allow,Deny
     Deny from all
 </Files>

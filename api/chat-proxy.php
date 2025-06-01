@@ -7,13 +7,13 @@
 
 $config = [
     // Your Pinecone API Key (required)
-    'api_key' => 'pc-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+    'api_key' => 'YOUR_ACTUAL_PINECONE_API_KEY_HERE',
     
-    // Your Pinecone Assistant ID (required)
-    'assistant_id' => 'asst-xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx',
+    // Your Pinecone Assistant ID (required) 
+    'assistant_id' => 'aback-chatbot',
     
-    // Pinecone API Base URL (usually doesn't need to change)
-    'api_base_url' => 'https://api.pinecone.io/v1',
+    // Pinecone API Base URL (updated for your host)
+    'api_base_url' => 'https://prod-1-data.ke.pinecone.io',
     
     // Rate limiting settings
     'rate_limit' => [
@@ -79,7 +79,7 @@ $PINECONE_API_KEY = $config['api_key'];
 $PINECONE_ASSISTANT_ID = $config['assistant_id'];
 
 // Updated API endpoint for Pinecone Assistant
-$PINECONE_API_URL = $config['api_base_url'] . '/assistants/' . $PINECONE_ASSISTANT_ID . '/chat';
+$PINECONE_API_URL = $config['api_base_url'] . '/assistant/chat/' . $PINECONE_ASSISTANT_ID;
 
 // Validate required configuration
 if (empty($PINECONE_API_KEY) || $PINECONE_API_KEY === 'pc-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx') {
