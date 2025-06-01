@@ -65,8 +65,8 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       if (isValid) {
-        // Submit form via AJAX
-        submitContactForm({
+        // Create mailto link and open email client
+        openEmailClient({
           name: name.value.trim(),
           email: email.value.trim(),
           subject: subject.value.trim(),
@@ -82,49 +82,43 @@ document.addEventListener('DOMContentLoaded', function() {
     return regex.test(email);
   }
   
-  // Submit form function
-  function submitContactForm(formData) {
+  // Open email client function
+  function openEmailClient(formData) {
     const submitButton = contactForm.querySelector('.submit-button');
     const originalText = submitButton.innerHTML;
     
-    // Disable button and show loading state
-    submitButton.disabled = true;
-    submitButton.innerHTML = 'Sending...';
+    // Create email body
+    const emailBody = `Hi Aback.ai Team,
+
+${formData.message}
+
+---
+Best regards,
+${formData.name}
+${formData.email}`;
+
+    // Create mailto URL
+    const mailtoUrl = `mailto:contact@aback.ai?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(emailBody)}`;
     
-    // Send AJAX request
-    fetch('/api/contact-form.php', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData)
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        // Success
-        contactForm.reset();
-        submitButton.innerHTML = 'Message Sent!';
-        showNotification(data.message, 'success');
-        
-        // Reset button after 3 seconds
-        setTimeout(() => {
-          submitButton.disabled = false;
-          submitButton.innerHTML = originalText;
-        }, 3000);
-      } else {
-        // Error
-        submitButton.disabled = false;
-        submitButton.innerHTML = originalText;
-        showNotification(data.message, 'error');
-      }
-    })
-    .catch(error => {
-      console.error('Error:', error);
+    // Show loading state briefly
+    submitButton.disabled = true;
+    submitButton.innerHTML = 'Opening Email...';
+    
+    // Open email client
+    window.location.href = mailtoUrl;
+    
+    // Reset button and show success message after a short delay
+    setTimeout(() => {
       submitButton.disabled = false;
-      submitButton.innerHTML = originalText;
-      showNotification('Sorry, there was an error sending your message. Please try again later.', 'error');
-    });
+      submitButton.innerHTML = 'Email Opened!';
+      showNotification('Your email client has been opened with the pre-filled message. Please send the email from your email client.', 'success');
+      
+      // Reset form and button after showing success
+      setTimeout(() => {
+        contactForm.reset();
+        submitButton.innerHTML = originalText;
+      }, 3000);
+    }, 1000);
   }
   
   // Show notification function
@@ -151,11 +145,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Show notification
     setTimeout(() => notification.classList.add('show'), 100);
     
-    // Auto-hide after 5 seconds
+    // Auto-hide after 8 seconds (longer for the mailto instruction)
     setTimeout(() => {
       notification.classList.remove('show');
       setTimeout(() => notification.remove(), 300);
-    }, 5000);
+    }, 8000);
     
     // Close button functionality
     notification.querySelector('.notification-close').addEventListener('click', () => {
