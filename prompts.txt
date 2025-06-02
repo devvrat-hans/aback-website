@@ -17,3 +17,9 @@ this will help us rank our website whenever some searched the word
 "aback"
 
 the format of the article should be same as that of the existing articles on the wesite and nothing shoudq be different from them as far as the format of the blog post and design aspects are concerned onluy change the contetn of the blogpost
+
+--------------------------------------
+
+edit the contents of the file named: blog-ai-workflow-automation.html
+
+the article should be seo friendly and should target the keyowrds: ai workflow automation, ai workflow automation tools 2025, what is workflow automation, enterprise workflow automation, accounts payable workflow automation, workflow automation examples, document workflow automation
