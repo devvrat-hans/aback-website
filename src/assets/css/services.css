@@ -526,8 +526,8 @@
 /* Updated tags with opacity background colors */
 .agent-tag.productivity, 
 .agent-tag[class="productivity"] {
-  background: rgba(46, 204, 113, 0.15);
-  color: #27ae60;
+  background: rgba(52, 152, 219, 0.15);
+  color: #2980b9;
 }
 
 .agent-tag.automation, 
