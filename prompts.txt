@@ -1,25 +1,12 @@
-so we have pages and we have the index.html
-
-modify the template.js to load the navbar, footer and the chatbot in the pages which include the about.html, blog.html, careers.html, contact.html, ethics-charter.html, privacy.html, terms.html, whyus.html, serivces.html
-
-and for the index.html, we will have the templates directly copy pasted into the index.html file and the code will directly run from there
-
-to best of my knowledge, teh hosted wesite is not loading templates because of some issue with the templates.js and .htaccess
-the current strucsture of the url on the hosted website is not being followed on the website templates and is causing not loading of templates.
-
-please fix this issue as the production environment currently doesn't have any navbar, chatbot or footer
-
-
--------------------
-
-now write a blog posts which targets the keywords: aback, aback.ai and stuff
-this will help us rank our website whenever some searched the word 
-"aback"
-
-the format of the article should be same as that of the existing articles on the wesite and nothing shoudq be different from them as far as the format of the blog post and design aspects are concerned onluy change the contetn of the blogpost
 
 --------------------------------------
 
-edit the contents of the file named: blog-ai-workflow-automation.html
+edit the contents of the file named: blog-article.html
 
-the article should be seo friendly and should target the keyowrds: ai workflow automation, ai workflow automation tools 2025, what is workflow automation, enterprise workflow automation, accounts payable workflow automation, workflow automation examples, document workflow automation
+the blogpost should be seo friendly and should target the keyowrds: ai automation agency, ai automation agency in india, workflow automation agency in india, ai automation agency hub reviews, ai implementation agency, ai agency india, automation trends 2025, ai charter, ai for enterprise workflow
+also add the blogpost to the blog.html
+
+change the name of the .html file according to the blog title
+
+--------------------------------------
+
