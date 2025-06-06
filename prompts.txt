@@ -1,12 +1,21 @@
 
 --------------------------------------
 
-edit the contents of the file named: blog-article.html
+- edit the contents of the file named: blog-article.html
 
-the blogpost should be seo friendly and should target the keyowrds: ai automation agency, ai automation agency in india, workflow automation agency in india, ai automation agency hub reviews, ai implementation agency, ai agency india, automation trends 2025, ai charter, ai for enterprise workflow
-also add the blogpost to the blog.html
+- the blogpost should be seo friendly and should target the keyowrds: 
+--> main keyword: 
+--> supporting keywords: ai automation agency, ai automation agency in india, aback.ai
 
-change the name of the .html file according to the blog title
+- also add the blogpost to the blog.html
+
+- change the name of the .html file according to the blog title
+
+- also look for natural ways to give a backlink to the already existing article in the article that you genertate
+
+- also update the sitemap.xml accorginly 
+
+- the main aim of the blog should be SEO of the website and the give value to the users
 
 --------------------------------------
 
