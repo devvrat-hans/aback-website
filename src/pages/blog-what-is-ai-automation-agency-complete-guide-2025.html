@@ -50,27 +50,37 @@
           </a>
         </div>
         
-        <!-- Center Section - Navigation Links -->
-        <div class="nav-section nav-center">
+        <!-- Middle Section - Navigation Links -->
+        <div class="nav-section nav-middle">
           <div class="nav-links">
-            <a href="/" class="nav-link">Home</a>
-            <a href="/services" class="nav-link">Services</a>
-            <a href="/whyus" class="nav-link">Why Us</a>
-            <a href="/about" class="nav-link">About</a>
-            <a href="/blog" class="nav-link">Blog</a>
-            <a href="/contact" class="nav-link">Contact</a>
+            <a href="/" class="nav-link home-link" id="home-nav-link">
+              <span class="nav-link-text">Home</span>
+            </a>
+            <a href="/services" class="nav-link">
+              <span class="nav-link-text">Services</span>
+            </a>
+            <a href="/whyus" class="nav-link">
+              <span class="nav-link-text">Why Us</span>
+            </a>
+            <a href="/about" class="nav-link">
+              <span class="nav-link-text">About</span>
+            </a>
+            <a href="/careers" class="nav-link">
+              <span class="nav-link-text">Careers</span>
+            </a>
+            <a href="/blog" class="nav-link">
+              <span class="nav-link-text">Blog</span>
+            </a>
           </div>
         </div>
-        
-        <!-- Right Section - Contact Button -->
-        <div class="nav-section nav-right">
-          <a href="/contact" class="contact-btn">
-            <span>Get Started</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </a>
-        </div>
+      
+      <!-- Right Section - Contact Button -->
+      <div class="nav-section nav-right">
+        <a href="/contact" class="nav-button contact-button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <span>Contact Us</span>
+        </a>
+      </div>
       </div>
       
       <!-- Mobile menu button -->
@@ -83,15 +93,17 @@
       <!-- Mobile Menu -->
       <div class="mobile-menu">
         <div class="mobile-nav-links">
-          <a href="/" class="mobile-nav-link">Home</a>
+          <a href="/" class="mobile-nav-link active">Home</a>
           <a href="/services" class="mobile-nav-link">Services</a>
           <a href="/whyus" class="mobile-nav-link">Why Us</a>
           <a href="/about" class="mobile-nav-link">About</a>
+          <a href="/careers" class="mobile-nav-link">Careers</a>
           <a href="/blog" class="mobile-nav-link">Blog</a>
-          <a href="/contact" class="mobile-nav-link">Contact</a>
         </div>
         <div class="mobile-auth-buttons">
-          <a href="/contact" class="mobile-contact-btn">Get Started</a>
+          <a href="/contact" class="mobile-button mobile-signup">
+            Contact Us
+          </a>
         </div>
       </div>
   </nav>
@@ -102,11 +114,10 @@
       <section class="page">
         <div class="container">
           <nav class="breadcrumb-nav">
-            <a href="/" class="breadcrumb-link">Home</a>
-            <i>❯</i>
-            <a href="/blog" class="breadcrumb-link">Blog</a>
-            <i>❯</i>
-            <span>What is AI Automation Agency?</span>
+            <a href="/blog" class="breadcrumb-link">
+              <i>←</i>
+              Back to Blog
+            </a>
           </nav>
         </div>
       </section>
@@ -189,26 +200,34 @@
               </p>
 
               <h3>Revenue Streams for AI Automation Agencies</h3>
-              <div class="trend-number">1</div>
-              <h4>Consulting & Strategy Services</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Consulting & Strategy Services
+              </h4>
               <p>
                 Initial assessments, automation roadmaps, and strategic planning typically generate $5,000-$50,000 per engagement. This involves analyzing current processes, identifying automation opportunities, and developing implementation strategies.
               </p>
 
-              <div class="trend-number">2</div>
-              <h4>Implementation Services</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Implementation Services
+              </h4>
               <p>
                 Custom AI solution development and deployment can range from $25,000 to $500,000+ depending on complexity. This includes building custom AI models, integrating systems, and deploying automation workflows.
               </p>
 
-              <div class="trend-number">3</div>
-              <h4>Ongoing Support & Maintenance</h4>
+              <h4>
+                <span class="trend-number">3</span>
+                Ongoing Support & Maintenance
+              </h4>
               <p>
                 Monthly retainers for system monitoring, updates, and optimization typically range from $2,000-$20,000 monthly, providing predictable recurring revenue.
               </p>
 
-              <div class="trend-number">4</div>
-              <h4>Training & Change Management</h4>
+              <h4>
+                <span class="trend-number">4</span>
+                Training & Change Management
+              </h4>
               <p>
                 Staff training programs and change management services can add $10,000-$100,000 to project value, ensuring successful adoption of new automated processes.
               </p>
@@ -271,8 +290,10 @@
               </p>
 
               <h3>Step 1: Build Technical Foundation</h3>
-              <div class="trend-number">1</div>
-              <h4>Acquire Essential Skills</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Acquire Essential Skills
+              </h4>
               <ul>
                 <li><strong>AI/ML Technologies:</strong> Python, TensorFlow, PyTorch, scikit-learn</li>
                 <li><strong>Automation Tools:</strong> UiPath, Automation Anywhere, Power Automate</li>
@@ -280,8 +301,10 @@
                 <li><strong>Data Analysis:</strong> SQL, data visualization tools, statistical analysis</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>Build a Portfolio</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Build a Portfolio
+              </h4>
               <p>
                 Create 3-5 demonstration projects showcasing different automation capabilities. These should include:
               </p>
@@ -293,8 +316,10 @@
               </ul>
 
               <h3>Step 2: Define Your Niche</h3>
-              <div class="trend-number">3</div>
-              <h4>Choose Target Industries</h4>
+              <h4>
+                <span class="trend-number">3</span>
+                Choose Target Industries
+              </h4>
               <p>
                 Specializing in 2-3 industries initially allows you to develop deep expertise and create more compelling value propositions. Consider:
               </p>
@@ -304,8 +329,10 @@
                 <li><strong>Customer service intensive:</strong> Retail, hospitality, SaaS companies</li>
               </ul>
 
-              <div class="trend-number">4</div>
-              <h4>Develop Service Offerings</h4>
+              <h4>
+                <span class="trend-number">4</span>
+                Develop Service Offerings
+              </h4>
               <p>
                 Structure your services into clear packages:
               </p>
@@ -317,8 +344,10 @@
               </ul>
 
               <h3>Step 3: Business Setup and Legal Structure</h3>
-              <div class="trend-number">5</div>
-              <h4>Register Your Business</h4>
+              <h4>
+                <span class="trend-number">5</span>
+                Register Your Business
+              </h4>
               <p>
                 Choose an appropriate business structure (LLC, Corporation) and handle legal requirements:
               </p>
@@ -329,8 +358,10 @@
                 <li>Intellectual property protection</li>
               </ul>
 
-              <div class="trend-number">6</div>
-              <h4>Set Up Operations</h4>
+              <h4>
+                <span class="trend-number">6</span>
+                Set Up Operations
+              </h4>
               <ul>
                 <li><strong>Technology Infrastructure:</strong> Cloud environments, development tools, security protocols</li>
                 <li><strong>Project Management:</strong> CRM systems, project tracking, communication tools</li>
@@ -339,8 +370,10 @@
               </ul>
 
               <h3>Step 4: Client Acquisition Strategy</h3>
-              <div class="trend-number">7</div>
-              <h4>Content Marketing & Thought Leadership</h4>
+              <h4>
+                <span class="trend-number">7</span>
+                Content Marketing & Thought Leadership
+              </h4>
               <p>
                 Establish expertise through valuable content:
               </p>
@@ -351,8 +384,10 @@
                 <li>Social media presence on LinkedIn and Twitter</li>
               </ul>
 
-              <div class="trend-number">8</div>
-              <h4>Network and Partnerships</h4>
+              <h4>
+                <span class="trend-number">8</span>
+                Network and Partnerships
+              </h4>
               <ul>
                 <li><strong>Technology Partners:</strong> Partnerships with software vendors</li>
                 <li><strong>Industry Associations:</strong> Join relevant professional organizations</li>
@@ -367,8 +402,10 @@
 
               <h3>💰 Pricing Model Options</h3>
               
-              <div class="trend-number">1</div>
-              <h4>Project-Based Pricing</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Project-Based Pricing
+              </h4>
               <p>
                 Fixed-price contracts for defined deliverables:
               </p>
@@ -378,8 +415,10 @@
                 <li><strong>Large Projects:</strong> $200,000 - $1M+ (enterprise-wide transformations)</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>Retainer-Based Pricing</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Retainer-Based Pricing
+              </h4>
               <p>
                 Monthly fees for ongoing services:
               </p>
@@ -389,8 +428,10 @@
                 <li><strong>Strategic Partnership:</strong> $15,000 - $50,000/month (continuous innovation)</li>
               </ul>
 
-              <div class="trend-number">3</div>
-              <h4>Value-Based Pricing</h4>
+              <h4>
+                <span class="trend-number">3</span>
+                Value-Based Pricing
+              </h4>
               <p>
                 Pricing based on measurable business impact:
               </p>
@@ -506,8 +547,10 @@
 
               <h3>🎯 Naming Strategy Categories</h3>
 
-              <div class="trend-number">1</div>
-              <h4>Tech-Forward Names</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Tech-Forward Names
+              </h4>
               <ul>
                 <li>IntelliFlow Solutions</li>
                 <li>AutomateIQ Partners</li>
@@ -517,8 +560,10 @@
                 <li>QuantumFlow Automation</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>Business-Focused Names</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Business-Focused Names
+              </h4>
               <ul>
                 <li>Efficiency Edge Consulting</li>
                 <li>ProcessPrime Solutions</li>
@@ -528,8 +573,10 @@
                 <li>TransformTech Consultants</li>
               </ul>
 
-              <div class="trend-number">3</div>
-              <h4>Creative & Memorable Names</h4>
+              <h4>
+                <span class="trend-number">3</span>
+                Creative & Memorable Names
+              </h4>
               <ul>
                 <li>Aback.ai (our own brand!)</li>
                 <li>FlowForge Consulting</li>
@@ -557,8 +604,10 @@
 
               <h3>🚀 Startup-Specific Automation Needs</h3>
 
-              <div class="trend-number">1</div>
-              <h4>Growth-Stage Challenges</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Growth-Stage Challenges
+              </h4>
               <ul>
                 <li><strong>Scaling Operations:</strong> Manual processes that worked at 10 employees break at 100</li>
                 <li><strong>Resource Constraints:</strong> Limited budget and technical expertise</li>
@@ -566,8 +615,10 @@
                 <li><strong>Flexibility Needs:</strong> Solutions must adapt as business model evolves</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>High-Impact Automation Areas for Startups</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                High-Impact Automation Areas for Startups
+              </h4>
               <ul>
                 <li><strong>Customer Acquisition:</strong> Lead generation, qualification, and nurturing automation</li>
                 <li><strong>Customer Support:</strong> Chatbots, ticket routing, and knowledge base automation</li>
@@ -615,8 +666,10 @@
 
               <h3>🇮🇳 Indian Market Landscape</h3>
 
-              <div class="trend-number">1</div>
-              <h4>Market Size and Growth</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Market Size and Growth
+              </h4>
               <ul>
                 <li><strong>Market Value:</strong> $7.8 billion in 2024, projected to reach $35 billion by 2030</li>
                 <li><strong>Growth Rate:</strong> 28% CAGR (2024-2030)</li>
@@ -624,8 +677,10 @@
                 <li><strong>Employment:</strong> 450,000+ professionals in AI automation sector</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>Key Advantages of Indian AI Automation Agencies</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Key Advantages of Indian AI Automation Agencies
+              </h4>
               <ul>
                 <li><strong>Cost Efficiency:</strong> 40-60% lower costs compared to US/European agencies</li>
                 <li><strong>Technical Expertise:</strong> Strong engineering and mathematics foundation</li>
@@ -668,8 +723,10 @@
 
               <h3>✅ Reasons Why AI Automation Agency is Worth It</h3>
 
-              <div class="trend-number">1</div>
-              <h4>Market Demand is Exploding</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Market Demand is Exploding
+              </h4>
               <ul>
                 <li><strong>Growth Rate:</strong> 25% annual growth in automation services market</li>
                 <li><strong>Enterprise Adoption:</strong> 85% of enterprises planning automation investments</li>
@@ -677,8 +734,10 @@
                 <li><strong>Labor Shortage:</strong> Automation filling gaps in tight labor markets</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>High Profit Margins</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                High Profit Margins
+              </h4>
               <ul>
                 <li><strong>Service Margins:</strong> 40-70% gross margins typical for specialized services</li>
                 <li><strong>Recurring Revenue:</strong> Ongoing support contracts provide predictable income</li>
@@ -686,8 +745,10 @@
                 <li><strong>Low Physical Infrastructure:</strong> Primarily knowledge-based business model</li>
               </ul>
 
-              <div class="trend-number">3</div>
-              <h4>Competitive Advantages</h4>
+              <h4>
+                <span class="trend-number">3</span>
+                Competitive Advantages
+              </h4>
               <ul>
                 <li><strong>Barrier to Entry:</strong> Technical expertise requirements limit competition</li>
                 <li><strong>Network Effects:</strong> Success breeds referrals and reputation</li>
@@ -697,8 +758,10 @@
 
               <h3>⚠️ Challenges to Consider</h3>
 
-              <div class="trend-number">1</div>
-              <h4>Technical Complexity</h4>
+              <h4>
+                <span class="trend-number">1</span>
+                Technical Complexity
+              </h4>
               <ul>
                 <li><strong>Skill Requirements:</strong> Need deep technical expertise across multiple domains</li>
                 <li><strong>Rapid Technology Evolution:</strong> Constant learning and adaptation required</li>
@@ -706,8 +769,10 @@
                 <li><strong>Quality Assurance:</strong> High stakes for automation failures</li>
               </ul>
 
-              <div class="trend-number">2</div>
-              <h4>Business Development Challenges</h4>
+              <h4>
+                <span class="trend-number">2</span>
+                Business Development Challenges
+              </h4>
               <ul>
                 <li><strong>Long Sales Cycles:</strong> Enterprise deals can take 6-18 months</li>
                 <li><strong>Proof of Concept Requirements:</strong> Often need to demonstrate value before contracts</li>
@@ -786,32 +851,37 @@
               <p>
                 An AI automation agency is a specialized service provider that combines technical expertise in artificial intelligence, machine learning, and automation tools with business consulting skills to help organizations transform their operations. They offer end-to-end services from strategy development to implementation and ongoing optimization of intelligent automation solutions.
               </p>
-            </div>
 
-            <!-- Share Buttons -->
-            <div class="share-buttons">
-              <button class="share-button twitter" data-platform="twitter">
-                <i>🐦</i>
-                Share on Twitter
-              </button>
-              <button class="share-button linkedin" data-platform="linkedin">
-                <i>💼</i>
-                Share on LinkedIn
-              </button>
-              <button class="share-button facebook" data-platform="facebook">
-                <i>📘</i>
-                Share on Facebook
-              </button>
-            </div>
+              <!-- Author Bio -->
+              <div class="author-bio">
+                <img src="/src/assets/images/favicon.png" alt="Aback.ai Research Team" class="author-avatar-large" />
+                <div class="author-info">
+                  <h4>Aback.ai Research Team</h4>
+                  <p>
+                    Our research team consists of automation experts, AI specialists, and industry analysts dedicated to providing comprehensive insights into the AI automation landscape. We analyze market trends, evaluate service providers, and deliver actionable intelligence to help businesses make informed automation decisions.
+                  </p>
+                </div>
+              </div>
 
-            <!-- Author Bio -->
-            <div class="author-bio">
-              <img src="/src/assets/images/aback-ai-only-logo-1280-no-bg.png" alt="Aback.ai Team" class="author-avatar-large">
-              <div class="author-info">
-                <h4>Aback.ai Expert Team</h4>
-                <p>
-                  Our team of AI automation specialists and business consultants brings years of experience in implementing intelligent automation solutions across industries. We're passionate about helping businesses transform through technology.
-                </p>
+              <!-- Related Posts -->
+              <div class="related-posts">
+                <h3>Related Articles</h3>
+                <div class="related-posts-grid">
+                  <article class="related-post">
+                    <h4><a href="/blog-ai-automation-agency-india">AI Automation Agency in India: Complete Guide</a></h4>
+                    <p>Learn everything about AI automation agencies in India, their services, and how to choose the best partner for your business needs.</p>
+                  </article>
+                  
+                  <article class="related-post">
+                    <h4><a href="/blog-future-automation-2025">Future of Business Automation: 5 Trends to Watch</a></h4>
+                    <p>Discover the emerging trends that will shape business automation in 2025 and prepare your organization for the future.</p>
+                  </article>
+                  
+                  <article class="related-post">
+                    <h4><a href="/blog-ai-workflow-automation">AI Workflow Automation: Enterprise Solutions Guide</a></h4>
+                    <p>Discover how AI workflow automation transforms enterprise operations with advanced tools, document processing, and real-world implementation examples.</p>
+                  </article>
+                </div>
               </div>
             </div>
           </article>
@@ -878,11 +948,12 @@
       </div>
       
       <div class="chat-input">
-        <input type="text" placeholder="Type your question..." />
-        <button type="submit">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+        <input type="text" id="chat-input-field" placeholder="Type your message..." autocomplete="off">
+        <button class="send-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
         </button>
       </div>
       
@@ -899,15 +970,30 @@
   <script src="/src/assets/js/blogpost.js"></script>
 
   <script>
-    // Ensure proper loading of dynamic content
+    // Animation triggers for CTA section
     document.addEventListener('DOMContentLoaded', function() {
-      // Load footer content
-      if (typeof loadFooter === 'function') {
-        loadFooter();
-      }
+      // Initialize CTA animation
+      setTimeout(() => {
+        const ctaContent = document.querySelector('.cta-content');
+        if (ctaContent) {
+          ctaContent.classList.add('animate-fade-in');
+        }
+      }, 300);
       
-      // Initialize any additional page-specific functionality
-      console.log('AI Automation Agency guide loaded successfully');
+      // Observe CTA for animation on scroll
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('animate-fade-in');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      const ctaSection = document.querySelector('.cta-content');
+      if (ctaSection) {
+        observer.observe(ctaSection);
+      }
     });
   </script>
 </body>
