@@ -42,7 +42,7 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_URI} !^/src/
 RewriteCond %{REQUEST_URI} !^/api/
-RewriteRule ^(services|whyus|about|careers|contact|blog|privacy|terms|ethics-charter)/?$ /src/pages/$1.html [L]
+RewriteRule ^(services|whyus|about|careers|contact|blog|privacy|terms|ethics-charter|automation-calculator)/?$ /src/pages/$1.html [L]
 
 # Map blog post URLs to pages directory
 RewriteCond %{REQUEST_FILENAME} !-f
