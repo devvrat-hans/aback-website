@@ -1140,7 +1140,7 @@ Our recommended strategy focuses on:
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Email: info@aback.ai', margin + 10, yPosition + 25);
+    doc.text('Email: contact@aback.ai', margin + 10, yPosition + 25);
     doc.text('Website: www.aback.ai', margin + 10, yPosition + 32);
     doc.text('Phone: +91-936-981-1105', margin + 10, yPosition + 39);
     doc.text('Expertise: AI Automation Solutions', margin + 10, yPosition + 46);
