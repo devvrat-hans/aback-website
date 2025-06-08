@@ -11,6 +11,7 @@ Allow: /privacy
 Allow: /terms
 Allow: /ethics-charter
 Allow: /blog
+Allow: /automation-calculator
 
 # Allow CSS, JS, and images
 Allow: /src/assets/css/
