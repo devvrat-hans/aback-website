@@ -1,0 +1,217 @@
+AUTOMATION CALCULATOR - COMPREHENSIVE PRESET VALUES AND CONFIGURABLE PARAMETERS
+====================================================================================
+Purpose: Complete record of all preset values for review and modification
+
+====================================================================================
+1. INDUSTRY PRESETS
+====================================================================================
+
+Each industry preset contains 7 configurable parameters:
+
+FINANCE INDUSTRY:
+- Tasks Per Period: 500
+- Time Per Task: 15 minutes
+- Hourly Rate: $75
+- Employees Affected: 25
+- Error Rate: 2% (0.02 decimal)
+- Automation Efficiency: 85%
+- Implementation Cost: $150,000
+
+HEALTHCARE INDUSTRY:
+- Tasks Per Period: 300
+- Time Per Task: 20 minutes
+- Hourly Rate: $65
+- Employees Affected: 15
+- Error Rate: 1% (0.01 decimal)
+- Automation Efficiency: 80%
+- Implementation Cost: $120,000
+
+MANUFACTURING INDUSTRY:
+- Tasks Per Period: 800
+- Time Per Task: 10 minutes
+- Hourly Rate: $55
+- Employees Affected: 40
+- Error Rate: 3% (0.03 decimal)
+- Automation Efficiency: 90%
+- Implementation Cost: $200,000
+
+RETAIL INDUSTRY:
+- Tasks Per Period: 600
+- Time Per Task: 8 minutes
+- Hourly Rate: $45
+- Employees Affected: 30
+- Error Rate: 2.5% (0.025 decimal)
+- Automation Efficiency: 85%
+- Implementation Cost: $100,000
+
+INSURANCE INDUSTRY:
+- Tasks Per Period: 400
+- Time Per Task: 25 minutes
+- Hourly Rate: $70
+- Employees Affected: 20
+- Error Rate: 1.5% (0.015 decimal)
+- Automation Efficiency: 88%
+- Implementation Cost: $140,000
+
+LEGAL INDUSTRY:
+- Tasks Per Period: 200
+- Time Per Task: 45 minutes
+- Hourly Rate: $150
+- Employees Affected: 10
+- Error Rate: 1% (0.01 decimal)
+- Automation Efficiency: 75%
+- Implementation Cost: $180,000
+
+HR (HUMAN RESOURCES) INDUSTRY:
+- Tasks Per Period: 350
+- Time Per Task: 18 minutes
+- Hourly Rate: $60
+- Employees Affected: 12
+- Error Rate: 2% (0.02 decimal)
+- Automation Efficiency: 82%
+- Implementation Cost: $90,000
+
+LOGISTICS INDUSTRY:
+- Tasks Per Period: 700
+- Time Per Task: 12 minutes
+- Hourly Rate: $50
+- Employees Affected: 35
+- Error Rate: 3% (0.03 decimal)
+- Automation Efficiency: 87%
+- Implementation Cost: $130,000
+
+====================================================================================
+2. AUTOMATION APPROACH PRESETS
+====================================================================================
+
+CONSERVATIVE APPROACH:
+- Name: "Conservative"
+- Description: "Gradual automation with lower risk"
+- Efficiency Multiplier: 0.7 (70% of base efficiency)
+- Implementation Multiplier: 1.2 (20% higher implementation cost)
+
+MODERATE APPROACH:
+- Name: "Moderate" 
+- Description: "Balanced automation approach"
+- Efficiency Multiplier: 1.0 (100% base efficiency)
+- Implementation Multiplier: 1.0 (Base implementation cost)
+
+AGGRESSIVE APPROACH:
+- Name: "Aggressive"
+- Description: "Maximum automation with higher efficiency"
+- Efficiency Multiplier: 1.3 (130% of base efficiency)
+- Implementation Multiplier: 0.8 (20% lower implementation cost due to scale)
+
+====================================================================================
+3. JOB ROLE HOURLY RATE PRESETS (from HTML file)
+====================================================================================
+
+DATA_ENTRY_CLERK: $25/hour
+CUSTOMER_SERVICE_REP: $35/hour
+ADMINISTRATIVE_ASSISTANT: $40/hour
+ACCOUNTS_PAYABLE_CLERK: $45/hour
+HR_COORDINATOR: $50/hour
+OPERATIONS_ANALYST: $65/hour
+PROJECT_MANAGER: $75/hour
+SENIOR_ANALYST: $85/hour
+CONSULTANT: $100/hour
+
+====================================================================================
+4. DEFAULT INPUT VALUES AND RANGES
+====================================================================================
+
+TASKS PER PERIOD:
+- Default: 100
+- Minimum: 1
+- Maximum: 10,000
+- Step: 1
+- Unit: "tasks per month/week/day"
+
+TIME PER TASK:
+- Default: 30
+- Minimum: 1
+- Maximum: 480 (8 hours)
+- Step: 1
+- Unit: "minutes"
+
+HOURLY RATE:
+- Default: $50
+- Minimum: $10
+- Maximum: $500
+- Step: $1
+- Currency: USD
+
+EMPLOYEES AFFECTED:
+- Default: 5
+- Minimum: 1
+- Maximum: 1000
+- Step: 1
+- Unit: "number of employees"
+
+ERROR RATE:
+- Default: 2% (0.02)
+- Minimum: 0%
+- Maximum: 20%
+- Step: 0.1%
+- Display: Percentage slider
+
+AUTOMATION EFFICIENCY:
+- Default: 85%
+- Minimum: 50%
+- Maximum: 95%
+- Step: 1%
+- Display: Percentage slider
+
+IMPLEMENTATION COST:
+- Default: $100,000
+- Minimum: $1,000
+- Maximum: $5,000,000
+- Step: $1,000
+- Currency: USD
+
+====================================================================================
+5. CALCULATION PARAMETERS AND MULTIPLIERS
+====================================================================================
+
+TIME CALCULATIONS:
+- Working hours per day: 8
+- Working days per week: 5
+- Working weeks per year: 52
+- Annual working hours: 2080
+
+COST MULTIPLIERS:
+- Benefits and overhead multiplier: 1.3 (30% additional cost)
+- Training cost per employee: $2,500
+- Maintenance cost percentage: 15% of implementation cost annually
+
+ROI CALCULATIONS:
+- ROI formula: ((Annual Savings - Annual Cost) / Implementation Cost) × 100
+- Payback period: Implementation Cost / Net Annual Savings
+- Break-even threshold: When cumulative savings exceed total investment
+
+ERROR COST CALCULATIONS:
+- Rework time multiplier: 2.5x original task time
+- Error correction cost: Hourly rate × rework time
+- Quality impact factor: 1.2x for customer-facing processes
+
+====================================================================================
+6. SCENARIO CONFIGURATIONS
+====================================================================================
+
+QUICK SCENARIO PRESETS:
+1. Small Business (Conservative):
+   - Tasks: 50/month, Time: 20min, Rate: $35/hr, Employees: 3
+   - Efficiency: 70%, Cost: $25,000
+
+2. Medium Enterprise (Moderate):
+   - Tasks: 200/month, Time: 25min, Rate: $60/hr, Employees: 10
+   - Efficiency: 85%, Cost: $100,000
+
+3. Large Corporation (Aggressive):
+   - Tasks: 1000/month, Time: 15min, Rate: $75/hr, Employees: 50
+   - Efficiency: 90%, Cost: $500,000
+
+COMPARISON SCENARIOS:
+- Maximum scenarios: 3
+- Default comparison: Current vs Automated
+- Advanced comparison: Conservative vs Moderate vs Aggressive

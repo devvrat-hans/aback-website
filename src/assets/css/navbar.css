@@ -484,6 +484,41 @@ body {
   color: white !important;
 }
 
+/* Calculator Link with Badge */
+.calculator-link {
+  position: relative;
+  background: rgba(0, 102, 204, 0.05);
+  border: 1px solid rgba(0, 102, 204, 0.2);
+}
+
+.calculator-link:hover {
+  background: rgba(0, 102, 204, 0.1);
+  border-color: rgba(0, 102, 204, 0.3);
+  color: var(--primary-color);
+}
+
+.nav-link-badge {
+  background: linear-gradient(135deg, var(--accent-color), #00d4ff);
+  color: white;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 195, 255, 0.3);
+  animation: badgePulse 2s infinite;
+}
+
+@keyframes badgePulse {
+  0%, 100% {
+    box-shadow: 0 2px 4px rgba(0, 195, 255, 0.3);
+  }
+  50% {
+    box-shadow: 0 2px 8px rgba(0, 195, 255, 0.5);
+  }
+}
+
 /* Responsive Styles for Floating Navbar */
 @media (max-width: 1024px) {
   :root {
