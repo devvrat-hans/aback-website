@@ -1,7 +1,7 @@
 
 --------------------------------------
 
-- edit the contents of the file named: blog-article.html
+- edit the contents of the file named: blog-article-template.html
 
 - the blogpost should be seo friendly and should target the keyowrds: 
 --> main keyword: 
@@ -16,6 +16,14 @@
 - also update the sitemap.xml accorginly 
 
 - the main aim of the blog should be SEO of the website and the give value to the users
+
+- FAQS to be added to the webiste:
+
+1. 
+2. 
+3. 
+4. 
+5. 
 
 --------------------------------------
 
@@ -56,3 +64,30 @@ format for the output:
 my api key is: ru1ce25k5t8q46phb75dadiq7ph3m90gce9kvf2lt8gcq9b1krb11
 
 
+
+
+
+
+edit the contents of the file named: blog-article-template.html
+
+the blogpost should be seo friendly and should target the keyowrds:
+--> main keyword: doge ai tool government automation
+--> supporting keywords: ai automation agency, ai automation, ai automation: build llm apps, ai in industrial automation, ai and automation
+also add the blogpost to the blog.html
+
+change the name of the .html file according to the blog title
+
+also look for natural ways to give a backlink to the already existing article in the article that you genertate
+
+also update the sitemap.xml accorginly
+
+the main aim of the blog should be SEO of the website and the give value to the users
+
+FAQS to be added to the webiste:
+
+how do ai agents differ from traditional automation tools
+how is ai different from automation
+is robotic process automation ai
+what is ai automation
+how to automate tasks with ai
+how to automate business with ai
