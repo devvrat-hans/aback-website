@@ -68,26 +68,34 @@ my api key is: ru1ce25k5t8q46phb75dadiq7ph3m90gce9kvf2lt8gcq9b1krb11
 
 
 
-edit the contents of the file named: blog-article-template.html
+please add the author section and the realted article section properly to the blogpost on ai-automation-examples-2025
 
-the blogpost should be seo friendly and should target the keyowrds:
---> main keyword: doge ai tool government automation
---> supporting keywords: ai automation agency, ai automation, ai automation: build llm apps, ai in industrial automation, ai and automation
-also add the blogpost to the blog.html
+  <!-- Author Bio -->
+              <div class="author-bio">
+                <img src="/src/assets/images/favicon.png" alt="Aback.ai Team" class="author-avatar-large" />
+                <div class="author-info">
+                  <h4>Aback.ai Research Team</h4>
+                  <p>
+                    Our research team consists of automation experts, AI specialists, and industry analysts dedicated to providing comprehensive insights into the AI automation landscape. We analyze market trends, evaluate service providers, and deliver actionable intelligence to help businesses make informed automation decisions.
+                  </p>
+                </div>
+              </div>
 
-change the name of the .html file according to the blog title
+              <!-- Related Posts -->
+              <div class="related-posts">
+                <h3>Related Articles</h3>
+                <div class="related-posts-grid">
+                  <article class="related-post">
+                    <h4><a href="/blog-ai-automation-agency-india">AI Automation Agency in India: Complete Guide</a></h4>
+                    <p>Learn everything about AI automation agencies in India, their services, and how to choose the best partner for your business needs.</p>
+                  </article>
+                  
+                  <article class="related-post">
+                    <h4><a href="/blog-future-automation-2025">Future of Business Automation: 5 Trends to Watch</a></h4>
+                    <p>Discover the emerging trends that will shape business automation in 2025 and prepare your organization for the future.</p>
+                  </article>
+                </div>
+              </div>
 
-also look for natural ways to give a backlink to the already existing article in the article that you genertate
 
-also update the sitemap.xml accorginly
-
-the main aim of the blog should be SEO of the website and the give value to the users
-
-FAQS to be added to the webiste:
-
-how do ai agents differ from traditional automation tools
-how is ai different from automation
-is robotic process automation ai
-what is ai automation
-how to automate tasks with ai
-how to automate business with ai
+also add this article/blogpost to the blog.html
