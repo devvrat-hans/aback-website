@@ -442,49 +442,6 @@ blockquote::before {
   }
 }
 
-/* Share Buttons */
-.share-buttons {
-  display: flex;
-  gap: 1rem;
-  margin: 2rem 0;
-  padding: 1.5rem;
-  background: rgba(0, 102, 204, 0.03);
-  border-radius: var(--border-radius);
-  border: 1px solid var(--border-color);
-}
-
-.share-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.2rem;
-  border-radius: var(--border-radius-sm);
-  text-decoration: none;
-  font-weight: 500;
-  transition: var(--transition);
-  font-size: 0.9rem;
-}
-
-.share-button.twitter {
-  background: #1da1f2;
-  color: white;
-}
-
-.share-button.linkedin {
-  background: #0077b5;
-  color: white;
-}
-
-.share-button.facebook {
-  background: #1877f2;
-  color: white;
-}
-
-.share-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
 /* Author Bio */
 .author-bio {
   background: rgba(0, 102, 204, 0.03);
@@ -606,11 +563,7 @@ blockquote::before {
     max-width: 280px;
     justify-content: center;
   }
-  
-  .share-buttons {
-    flex-wrap: wrap;
-  }
-  
+
   .author-bio {
     flex-direction: column;
     text-align: center;
