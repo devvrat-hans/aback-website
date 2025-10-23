@@ -1,0 +1,143 @@
+Zero Waste Gujarat
+URL: zerowastegujarat.com
+Service Type: Website development + static chatbot integration
+
+This project highlights Aback.ai’s focus on clean, eco-centric website designs emphasizing sustainability and government alignment.
+Features include:
+
+Static website architecture for optimized page load and stability
+
+AI-based static chatbot embedded for FAQ handling
+
+Visual themes focused on environment awareness and CSR impact narrative
+
+Backend optimized for simple content delivery
+
+Recommended screenshots: Home page, chatbot popup interface, responsive layout on mobile and desktop.
+
+CurlSek
+URL: curlsek.netlify.app
+Service Type: Cybersecurity AI agents + Automation Development
+
+CurlSek is an AI-driven cybersecurity company offering Penetration Testing as a Service (PTaaS).
+Aback.ai developed:
+
+Corporate-grade website highlighting AI security solutions
+
+Email automation for onboarding leads and report communication
+
+Automated database handling for B2B client management
+
+PTaaS presentation interface showcasing AI-powered continuous risk assessment
+
+Recommended screenshots: Hero section “Smart Security Powered by AI”, PTaaS service explanation, and UI for automation flows.
+
+IIT Gandhinagar Research Park
+URL: iitgnrp-website.netlify.app
+Service Type: Institutional website design
+
+The IITGN Research Park website by Aback.ai serves as an official platform connecting startups, academia, and industries.
+Key website aspects:
+
+Professional institutional UI/UX layout with brand consistency
+
+Sections for collaboration, innovation news, and partnership stories
+
+Real-time metrics on research projects and partnerships
+
+Subscription integration for updates and event news
+
+Recommended screenshots: Homepage banner, “Collaborate With Us” section, metrics display, and partner testimonial layout.
+
+CYGNUS A.D. Management Consulting LLP Automation Portal
+Service Type: AI-powered recruitment and communication automation
+
+Developed an AI-driven internal portal for operational automation:
+
+Profile matching for leads and job listings using ML models
+
+WhatsApp & Email broadcast automation for hires and client updates
+
+Resume parsing and auto-database population
+
+AI-powered search and decision support for HR workflows
+
+Recommended visuals: Portal dashboard, automated lead matching interface, communication history pane.
+
+Aback Terminal
+Service Type: Professional Financial Analytics Platform
+
+A flagship product combining finance data analytics and AI:
+
+Analyze stock fundamentals and technicals
+
+Sector-based exploration and filtering
+
+Real-time market-impact news curation
+
+AI-driven buy/sell sentiment analysis from multi-source data
+
+Integration with finance APIs and charting libraries
+
+Recommended screenshots: Stock analysis dashboard, fund heatmap, and sentiment visualization.
+
+Fintell Suite (Adani Project)
+Service Type: AI-based invoice automation
+
+Key capabilities:
+
+Invoice parsing (PDF, PNG, JPEG) using CV + NLP models
+
+Auto-fetch from email and validation via government portals
+
+Price comparison with existing POs and vendor master
+
+AI-based invoice management system with natural language querying
+
+Recommended screenshots: Invoice upload screen, extracted data summary, AI query interface.
+
+Sumacom Consultancy
+URL: sumacomconsultancy.com
+Service Type: Research consultancy automation platform
+
+Primary deliverables:
+
+Website development with automation and AI productivity tools
+
+Email pipeline automation for client, vendor, and team communication
+
+AI-driven classification of correspondence (clients/vendors/others)
+
+HR automation workflows
+
+Chemical property analysis AI models for research time reduction
+
+Recommended screenshots: Homepage banner, filtered email dashboard, automated email reply configuration.
+
+Aback.ai (Self Project)
+URL: aback.ai
+Service Type: Website + Automation
+
+Official corporate site for Aback.ai featuring:
+
+AI chatbot integration for lead engagement
+
+Workflow management automation for client handling
+
+Automated client follow-ups and internal team management dashboard
+
+Screenshots: Home, chatbot interface, team management panel.
+
+Vardhaman Agencies
+URL: vardhamanagencies.in
+Service Type: Static business website + chatbot
+
+Project focus:
+
+Informational business site with catalog presentation
+
+Static chatbot for customer queries
+
+Optimized layout for offline access and rapid loading
+
+Recommended screenshots: Home banner, chatbot panel, contact form.

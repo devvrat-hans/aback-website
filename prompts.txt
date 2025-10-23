@@ -1,4 +1,19 @@
 
+remove all thsi stuff 85%
+Efficiency Gain
+12hrs
+Time Saved
+99.7%
+Accuracy
+$2.4M
+Cost Savings
+
+from the portfolio cards and the code related to them
+
+--------------------------------------
+
+The hero section of hte portfolio page should be like the hero section of other pages. removee the stats and its related code from the hero section of hte portfolio page
+
 --------------------------------------
 
 - edit the contents of the file named: blog-article.html
@@ -24,44 +39,6 @@
 3. 
 4. 
 5. 
-
---------------------------------------
-
-firstly, i am making this calculator for the indian business. so make sure there is an option to get the calculator results in indian rupees also
-
-for the wages and the rate converstions between usd and inr you can use the purchasing power parity of 5
-
-we can use this api key for convertion rates between usd and inr
-
-here is the api call:
-
-const data = null;
-
-const xhr = new XMLHttpRequest();
-xhr.withCredentials = true;
-
-xhr.addEventListener("readystatechange", function () {
-if (this.readyState === this.DONE) {
-console.log(this.responseText);
-}
-});
-
-xhr.open("GET", "https://anyapi.io/api/v1/exchange/convert?base=USD&to=EUR&amount=10000&apiKey=YOUR_API_KEY");
-
-xhr.send(data);
-
-format for the output:
-
-{
-"base": "USD",
-"to": "EUR",
-"amount": 10000,
-"converted": 8763,
-"rate": 0.8763,
-"lastUpdate": 1749168000
-}
-
-my api key is: ru1ce25k5t8q46phb75dadiq7ph3m90gce9kvf2lt8gcq9b1krb11
 
 
 -------------------

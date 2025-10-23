@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', function () {
         "schedule consultation": "To schedule a consultation, visit our Contact page or email contact@aback.ai with your preferred time. We offer free initial consultations to discuss your automation needs.",
         "office hours": "We're available Monday through Friday, 9:00 AM to 6:00 PM IST. For urgent matters, you can email us anytime and we'll respond as soon as possible.",
 
-        "founders": "Aback.ai was founded by Devvrat Hans and Rahul Pandey, both experienced in AI technology and business automation, with a vision to make advanced AI accessible to businesses worldwide.",
+        "founders": "Aback.ai was founded by Devvrat Hans, an experienced web developer, open-source enthusiast, and competitive programmer with a vision to make advanced AI accessible to businesses worldwide.",
         "team": "Our team consists of AI specialists, automation engineers, business analysts, and customer success managers, all dedicated to delivering exceptional automation solutions.",
         "expertise": "Our core expertise includes artificial intelligence, machine learning, natural language processing, business process automation, software development, and strategic technology consulting.",
         "leadership": "Our leadership team combines deep technical expertise in AI and automation with extensive business experience, ensuring solutions that are both technically advanced and commercially viable.",
