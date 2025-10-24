@@ -487,13 +487,9 @@ body {
 /* Calculator Link with Badge */
 .calculator-link {
   position: relative;
-  background: rgba(0, 102, 204, 0.05);
-  border: 1px solid rgba(0, 102, 204, 0.2);
 }
 
 .calculator-link:hover {
-  background: rgba(0, 102, 204, 0.1);
-  border-color: rgba(0, 102, 204, 0.3);
   color: var(--primary-color);
 }
 
