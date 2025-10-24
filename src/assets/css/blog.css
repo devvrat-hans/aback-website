@@ -139,7 +139,12 @@
   justify-content: center;
   flex-wrap: wrap;
   gap: 1rem;
-  margin-bottom: 3rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Reduce padding for blog categories section */
+.blog-hero + .section-light {
+  padding: 2rem 0 1rem;
 }
 
 .category-btn {
@@ -173,7 +178,12 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 2.5rem;
-  margin-top: 2rem;
+  margin-top: 0.5rem;
+}
+
+/* Reduce padding for blog posts section */
+.section-light + .page {
+  padding-top: 1rem;
 }
 
 /* Featured Post - Takes full width */

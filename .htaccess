@@ -2,7 +2,7 @@
 RewriteEngine On
 
 # Set environment variables for Pinecone API
-SetEnv PINECONE_API_KEY "pcsk_5nyuW3_Q63SqHPivfWcfpJ3DgF5xfzpPGLrust5WDfLHNDjYJNG6vhqirFegmtjSJz1mTG"
+SetEnv PINECONE_API_KEY "pcsk_3i9FUc_KH1T8ukX8Mz7T346nkh23G8nFtKoytnteXTTVz1MruVp27ZrVxYW2MBCMWe3Kek"
 SetEnv PINECONE_ASSISTANT_NAME "aback-chatbot"
 
 # Force HTTPS (for production)
